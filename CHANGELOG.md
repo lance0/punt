@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2025-12-09
+
+### Added
+
+- Favicon (football emoji via inline SVG)
+- Download button to save paste as .txt file
+- Toast notifications for copy/download feedback
+- Keyboard shortcuts (Ctrl+C copy, Ctrl+S download)
+- Paste size and line count display in header
+- Improved home page with hero section and examples grid
+- Gradient warning banner
+- SVG icons for toolbar buttons
+
 ## [0.2.0] - 2025-12-09
 
 ### Added
