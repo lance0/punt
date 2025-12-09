@@ -24,9 +24,9 @@ const c = {
 
 // Fun football-themed ASCII art
 const LOGO = `
-${c.yellow}    ╭──────────────────╮${c.reset}
-${c.yellow}    │${c.reset}  ${c.bold}${c.cyan}punt.sh${c.reset}  ${c.dim}v${VERSION}${c.reset}  ${c.yellow}│${c.reset}
-${c.yellow}    ╰──────────────────╯${c.reset}
+${c.yellow}  ╭───────────────────╮${c.reset}
+${c.yellow}  │${c.reset}  ${c.bold}${c.cyan}punt.sh${c.reset}  ${c.dim}v${VERSION}${c.reset}  ${c.yellow}│${c.reset}
+${c.yellow}  ╰───────────────────╯${c.reset}
 `;
 
 const FOOTBALL = `${c.yellow}🏈${c.reset}`;
