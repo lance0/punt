@@ -48,6 +48,7 @@ export const viewRoutes = new Elysia()
       return renderPastePage({
         id,
         content: htmlContent,
+        rawContent: paste.content,
         expiresIn,
         views: paste.views + 1,
         burnAfterRead: paste.burn_after_read === 1,

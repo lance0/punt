@@ -3,14 +3,22 @@ import { getAnsiCss } from "../lib/ansi";
 interface PastePageProps {
   id: string;
   content: string; // Already HTML-escaped and ANSI-converted
+  rawContent: string; // Original content for size calculation
   expiresIn: string;
   views: number;
   burnAfterRead: boolean;
 }
 
+function formatSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 export function renderPastePage(props: PastePageProps): string {
-  const { id, content, expiresIn, views, burnAfterRead } = props;
+  const { id, content, rawContent, expiresIn, views, burnAfterRead } = props;
   const lines = content.split("\n");
+  const size = new TextEncoder().encode(rawContent).length;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -19,7 +27,8 @@ export function renderPastePage(props: PastePageProps): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <title>punt.sh - ${escapeHtml(id)}</title>
-  <style>${getBaseStyles()}${getAnsiCss()}</style>
+  <link rel="icon" href="data:image/svg+xml,${encodeURIComponent(getFavicon())}">
+  <style>${getBaseStyles()}${getAnsiCss()}${getToastStyles()}</style>
 </head>
 <body>
   <div class="warning-banner">
@@ -29,22 +38,46 @@ export function renderPastePage(props: PastePageProps): string {
 
   <header>
     <div class="header-left">
-      <a href="/" class="logo">punt.sh</a>
+      <a href="/" class="logo">
+        <span class="logo-icon">🏈</span>
+        punt.sh
+      </a>
       <span class="paste-id">/${escapeHtml(id)}</span>
     </div>
     <div class="header-right">
-      <span class="meta">expires in ${escapeHtml(expiresIn)}</span>
+      <span class="meta">${formatSize(size)}</span>
+      <span class="meta-separator">•</span>
+      <span class="meta">${lines.length} line${lines.length !== 1 ? "s" : ""}</span>
+      <span class="meta-separator">•</span>
       <span class="meta">${views} view${views !== 1 ? "s" : ""}</span>
-      ${burnAfterRead ? '<span class="meta burn-badge">burns after read</span>' : ""}
+      <span class="meta-separator">•</span>
+      <span class="meta expires">expires ${escapeHtml(expiresIn)}</span>
+      ${burnAfterRead ? '<span class="meta burn-badge">🔥 burns after read</span>' : ""}
     </div>
   </header>
 
   <main>
     <div class="toolbar">
       <button id="copy-btn" class="btn" onclick="copyContent()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
         Copy
       </button>
+      <button id="download-btn" class="btn" onclick="downloadContent()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        Download
+      </button>
       <a href="/${escapeHtml(id)}/raw" class="btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+        </svg>
         Raw
       </a>
     </div>
@@ -53,30 +86,65 @@ export function renderPastePage(props: PastePageProps): string {
       <div class="line-numbers">
         ${lines.map((_, i) => `<span class="line-number">${i + 1}</span>`).join("\n        ")}
       </div>
-      <pre class="paste-content"><code>${content}</code></pre>
+      <pre class="paste-content"><code id="paste-code">${content}</code></pre>
+    </div>
+
+    <div class="keyboard-hint">
+      <kbd>Ctrl</kbd>+<kbd>C</kbd> copy • <kbd>Ctrl</kbd>+<kbd>S</kbd> download
     </div>
   </main>
 
   <footer>
-    <p>Pastes expire after at most 7 days</p>
+    <p>Pastes expire after at most 7 days • <a href="https://github.com/lance0/punt">GitHub</a></p>
   </footer>
 
+  <!-- Toast notification -->
+  <div id="toast" class="toast"></div>
+
   <script>
+    const pasteId = '${escapeHtml(id)}';
+
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = 'toast ' + type + ' show';
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
     async function copyContent() {
       try {
-        const response = await fetch('/${escapeHtml(id)}/raw');
+        const response = await fetch('/' + pasteId + '/raw');
         const text = await response.text();
         await navigator.clipboard.writeText(text);
-
-        const btn = document.getElementById('copy-btn');
-        btn.textContent = 'Copied!';
-        setTimeout(() => {
-          btn.textContent = 'Copy';
-        }, 2000);
+        showToast('Copied to clipboard!', 'success');
       } catch (err) {
-        console.error('Failed to copy:', err);
+        showToast('Failed to copy', 'error');
       }
     }
+
+    function downloadContent() {
+      const link = document.createElement('a');
+      link.href = '/' + pasteId + '/raw';
+      link.download = pasteId + '.txt';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('Downloading...', 'success');
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      // Ctrl+C when not selecting text copies the whole paste
+      if ((e.ctrlKey || e.metaKey) && e.key === 'c' && !window.getSelection().toString()) {
+        e.preventDefault();
+        copyContent();
+      }
+      // Ctrl+S downloads
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        downloadContent();
+      }
+    });
   </script>
 </body>
 </html>`;
@@ -90,17 +158,22 @@ export function renderErrorPage(title: string, message: string): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <title>punt.sh - ${escapeHtml(title)}</title>
+  <link rel="icon" href="data:image/svg+xml,${encodeURIComponent(getFavicon())}">
   <style>${getBaseStyles()}</style>
 </head>
 <body>
   <header>
-    <a href="/" class="logo">punt.sh</a>
+    <a href="/" class="logo">
+      <span class="logo-icon">🏈</span>
+      punt.sh
+    </a>
   </header>
 
   <main class="error-page">
+    <div class="error-icon">😵</div>
     <h1>${escapeHtml(title)}</h1>
     <p>${escapeHtml(message)}</p>
-    <a href="/" class="btn">Back to home</a>
+    <a href="/" class="btn btn-primary">Back to home</a>
   </main>
 
   <footer>
@@ -111,51 +184,97 @@ export function renderErrorPage(title: string, message: string): string {
 }
 
 export function renderHomePage(): string {
+  const baseUrl = process.env.BASE_URL ?? "https://punt.sh";
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>punt.sh - Share terminal output</title>
+  <meta name="description" content="Share terminal output via short URL with accurate ANSI colors. No account required, ephemeral by design.">
+  <link rel="icon" href="data:image/svg+xml,${encodeURIComponent(getFavicon())}">
   <style>${getBaseStyles()}</style>
 </head>
 <body>
   <header>
-    <a href="/" class="logo">punt.sh</a>
+    <a href="/" class="logo">
+      <span class="logo-icon">🏈</span>
+      punt.sh
+    </a>
   </header>
 
   <main class="home-page">
-    <h1>Share terminal output</h1>
-    <p class="tagline">with accurate ANSI colors and short, predictable lifetime</p>
+    <div class="hero">
+      <h1>Punt your terminal output</h1>
+      <p class="tagline">Share logs, errors, and command output with accurate ANSI colors.<br>No account. Short lifetime. Simple.</p>
+    </div>
 
     <div class="usage-section">
-      <h2>Usage</h2>
-      <pre class="usage-code"><code># Pipe any command output
-command | curl -X POST --data-binary @- ${process.env.BASE_URL ?? "https://punt.sh"}/api/paste
+      <h2>Quick Start</h2>
+      <pre class="usage-code"><code><span class="comment"># Pipe any command output</span>
+command | curl -X POST --data-binary @- ${baseUrl}/api/paste
 
-# With custom TTL (default: 24h, max: 7d)
-command | curl -X POST -H "X-TTL: 1h" --data-binary @- ${process.env.BASE_URL ?? "https://punt.sh"}/api/paste
+<span class="comment"># With custom TTL (default: 24h, max: 7d)</span>
+command | curl -X POST -H "X-TTL: 1h" --data-binary @- ${baseUrl}/api/paste</code></pre>
+    </div>
 
-# Examples
-docker logs mycontainer | curl -X POST --data-binary @- ${process.env.BASE_URL ?? "https://punt.sh"}/api/paste
-kubectl get pods | curl -X POST --data-binary @- ${process.env.BASE_URL ?? "https://punt.sh"}/api/paste
-npm test 2>&1 | curl -X POST --data-binary @- ${process.env.BASE_URL ?? "https://punt.sh"}/api/paste</code></pre>
+    <div class="examples-section">
+      <h2>Examples</h2>
+      <div class="examples-grid">
+        <div class="example-card">
+          <div class="example-icon">🐳</div>
+          <div class="example-content">
+            <code>docker logs myapp | curl -X POST --data-binary @- ${baseUrl}/api/paste</code>
+          </div>
+        </div>
+        <div class="example-card">
+          <div class="example-icon">☸️</div>
+          <div class="example-content">
+            <code>kubectl describe pod mypod | curl -X POST --data-binary @- ${baseUrl}/api/paste</code>
+          </div>
+        </div>
+        <div class="example-card">
+          <div class="example-icon">🧪</div>
+          <div class="example-content">
+            <code>npm test 2>&1 | curl -X POST --data-binary @- ${baseUrl}/api/paste</code>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="features-section">
       <h2>Features</h2>
-      <ul>
-        <li>Preserves ANSI colors and formatting</li>
-        <li>No account required</li>
-        <li>24 hour default expiry (max 7 days)</li>
-        <li>4 MB size limit</li>
-        <li>Rate limited: 100 pastes/day per IP</li>
-      </ul>
+      <div class="features-grid">
+        <div class="feature">
+          <span class="feature-icon">🎨</span>
+          <span>ANSI colors preserved</span>
+        </div>
+        <div class="feature">
+          <span class="feature-icon">👤</span>
+          <span>No account required</span>
+        </div>
+        <div class="feature">
+          <span class="feature-icon">⏱️</span>
+          <span>24h default expiry</span>
+        </div>
+        <div class="feature">
+          <span class="feature-icon">📦</span>
+          <span>4 MB size limit</span>
+        </div>
+        <div class="feature">
+          <span class="feature-icon">🚦</span>
+          <span>100 pastes/day per IP</span>
+        </div>
+        <div class="feature">
+          <span class="feature-icon">🔗</span>
+          <span>Short, shareable URLs</span>
+        </div>
+      </div>
     </div>
   </main>
 
   <footer>
-    <p>Pastes expire after at most 7 days</p>
+    <p>Pastes expire after at most 7 days • <a href="https://github.com/lance0/punt">GitHub</a></p>
   </footer>
 </body>
 </html>`;
@@ -168,6 +287,41 @@ function escapeHtml(str: string): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+}
+
+function getFavicon(): string {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🏈</text></svg>`;
+}
+
+function getToastStyles(): string {
+  return `
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #313244;
+      color: #cdd6f4;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 1000;
+      border: 1px solid #45475a;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .toast.success {
+      border-left: 3px solid #a6e3a1;
+    }
+    .toast.error {
+      border-left: 3px solid #f38ba8;
+    }
+  `;
 }
 
 function getBaseStyles(): string {
@@ -188,12 +342,13 @@ function getBaseStyles(): string {
     }
 
     .warning-banner {
-      background-color: #f9e2af;
+      background: linear-gradient(90deg, #f9e2af 0%, #fab387 100%);
       color: #1e1e2e;
-      padding: 8px 16px;
+      padding: 10px 16px;
       text-align: center;
       font-size: 13px;
       font-family: system-ui, -apple-system, sans-serif;
+      font-weight: 500;
     }
 
     header {
@@ -203,19 +358,20 @@ function getBaseStyles(): string {
       padding: 16px 24px;
       border-bottom: 1px solid #313244;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 12px;
+      background: rgba(17, 17, 27, 0.5);
     }
 
     .header-left {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
     }
 
     .header-right {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 8px;
       flex-wrap: wrap;
     }
 
@@ -224,20 +380,48 @@ function getBaseStyles(): string {
       text-decoration: none;
       font-size: 20px;
       font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: color 0.2s;
+    }
+
+    .logo:hover {
+      color: #b4befe;
+    }
+
+    .logo-icon {
+      font-size: 24px;
     }
 
     .paste-id {
       color: #6c7086;
-      font-size: 16px;
+      font-size: 15px;
+      background: #313244;
+      padding: 4px 10px;
+      border-radius: 4px;
     }
 
     .meta {
       color: #6c7086;
-      font-size: 13px;
+      font-size: 12px;
+    }
+
+    .meta-separator {
+      color: #45475a;
+      font-size: 10px;
+    }
+
+    .expires {
+      color: #f9e2af;
     }
 
     .burn-badge {
       color: #f38ba8;
+      background: rgba(243, 139, 168, 0.1);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
     }
 
     main {
@@ -256,28 +440,50 @@ function getBaseStyles(): string {
       background-color: #313244;
       color: #cdd6f4;
       border: 1px solid #45475a;
-      padding: 8px 16px;
-      border-radius: 6px;
+      padding: 10px 16px;
+      border-radius: 8px;
       cursor: pointer;
       font-size: 13px;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      transition: background-color 0.2s;
+      gap: 8px;
+      transition: all 0.2s;
       font-family: inherit;
     }
 
     .btn:hover {
       background-color: #45475a;
+      border-color: #585b70;
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #89b4fa 0%, #b4befe 100%);
+      color: #1e1e2e;
+      border: none;
+      font-weight: 600;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #b4befe 0%, #89b4fa 100%);
+    }
+
+    .btn svg {
+      opacity: 0.8;
     }
 
     .paste-container {
       display: flex;
       background-color: #181825;
-      border-radius: 8px;
+      border-radius: 12px;
       overflow: hidden;
       border: 1px solid #313244;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
     }
 
     .line-numbers {
@@ -285,7 +491,7 @@ function getBaseStyles(): string {
       flex-direction: column;
       padding: 16px 12px;
       background-color: #11111b;
-      color: #6c7086;
+      color: #45475a;
       text-align: right;
       user-select: none;
       border-right: 1px solid #313244;
@@ -295,6 +501,11 @@ function getBaseStyles(): string {
     .line-number {
       line-height: 1.5;
       font-size: 13px;
+      transition: color 0.2s;
+    }
+
+    .line-number:hover {
+      color: #6c7086;
     }
 
     .paste-content {
@@ -311,6 +522,22 @@ function getBaseStyles(): string {
       font-family: inherit;
     }
 
+    .keyboard-hint {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 12px;
+      color: #45475a;
+    }
+
+    .keyboard-hint kbd {
+      background: #313244;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid #45475a;
+      font-family: inherit;
+      font-size: 11px;
+    }
+
     .error-page {
       display: flex;
       flex-direction: column;
@@ -321,67 +548,130 @@ function getBaseStyles(): string {
       min-height: 50vh;
     }
 
+    .error-icon {
+      font-size: 64px;
+    }
+
     .error-page h1 {
       color: #f38ba8;
       font-size: 24px;
     }
 
     .home-page {
-      max-width: 800px;
+      max-width: 900px;
       margin: 0 auto;
+      padding: 20px 0;
     }
 
-    .home-page h1 {
-      font-size: 32px;
-      margin-bottom: 8px;
+    .hero {
+      text-align: center;
+      margin-bottom: 48px;
     }
 
-    .home-page .tagline {
+    .hero h1 {
+      font-size: 42px;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #89b4fa 0%, #f5c2e7 50%, #fab387 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .tagline {
       color: #6c7086;
-      margin-bottom: 32px;
+      font-size: 16px;
+      line-height: 1.6;
+      font-family: system-ui, -apple-system, sans-serif;
     }
 
     .home-page h2 {
       font-size: 18px;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
       color: #89b4fa;
     }
 
-    .usage-section, .features-section {
-      margin-bottom: 32px;
+    .usage-section, .examples-section, .features-section {
+      margin-bottom: 48px;
     }
 
     .usage-code {
       background-color: #181825;
       border: 1px solid #313244;
-      border-radius: 8px;
-      padding: 16px;
+      border-radius: 12px;
+      padding: 20px;
       overflow-x: auto;
       font-size: 13px;
-      line-height: 1.6;
+      line-height: 1.8;
     }
 
-    .features-section ul {
-      list-style: none;
-      padding-left: 0;
-    }
-
-    .features-section li {
-      padding: 4px 0;
-      color: #a6adc8;
-    }
-
-    .features-section li::before {
-      content: "- ";
+    .usage-code .comment {
       color: #6c7086;
     }
 
+    .examples-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .example-card {
+      background: #181825;
+      border: 1px solid #313244;
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: border-color 0.2s;
+    }
+
+    .example-card:hover {
+      border-color: #45475a;
+    }
+
+    .example-icon {
+      font-size: 28px;
+      flex-shrink: 0;
+    }
+
+    .example-content {
+      overflow-x: auto;
+    }
+
+    .example-content code {
+      font-size: 12px;
+      color: #a6adc8;
+      white-space: nowrap;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+
+    .feature {
+      background: #181825;
+      border: 1px solid #313244;
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      color: #a6adc8;
+    }
+
+    .feature-icon {
+      font-size: 20px;
+    }
+
     footer {
-      padding: 16px 24px;
+      padding: 20px 24px;
       border-top: 1px solid #313244;
       text-align: center;
       font-size: 13px;
       color: #6c7086;
+      font-family: system-ui, -apple-system, sans-serif;
     }
 
     footer a {
@@ -403,6 +693,14 @@ function getBaseStyles(): string {
       }
 
       .line-numbers {
+        display: none;
+      }
+
+      .hero h1 {
+        font-size: 28px;
+      }
+
+      .header-right {
         display: none;
       }
     }
