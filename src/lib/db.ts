@@ -110,3 +110,138 @@ export async function cleanupExpiredPastes(): Promise<number> {
   });
   return result.rowsAffected;
 }
+
+// Admin stats
+export interface AdminStats {
+  totalPastes: number;
+  pastesToday: number;
+  pastes7Days: number;
+  totalViews: number;
+  activePastes: number;
+  burnAfterReadCount: number;
+  privateCount: number;
+  topIps: { ip: string; count: number }[];
+}
+
+export async function getAdminStats(): Promise<AdminStats> {
+  const db = getDb();
+  const now = nowSeconds();
+  const oneDayAgo = now - 86400;
+  const sevenDaysAgo = now - 86400 * 7;
+
+  // Get paste counts
+  const [totalResult, todayResult, weekResult, activeResult, viewsResult, burnResult, privateResult] =
+    await Promise.all([
+      db.execute({ sql: `SELECT COUNT(*) as count FROM pastes`, args: [] }),
+      db.execute({
+        sql: `SELECT COUNT(*) as count FROM pastes WHERE created_at >= ?`,
+        args: [oneDayAgo],
+      }),
+      db.execute({
+        sql: `SELECT COUNT(*) as count FROM pastes WHERE created_at >= ?`,
+        args: [sevenDaysAgo],
+      }),
+      db.execute({
+        sql: `SELECT COUNT(*) as count FROM pastes WHERE expires_at > ?`,
+        args: [now],
+      }),
+      db.execute({ sql: `SELECT SUM(views) as total FROM pastes`, args: [] }),
+      db.execute({
+        sql: `SELECT COUNT(*) as count FROM pastes WHERE burn_after_read = 1`,
+        args: [],
+      }),
+      db.execute({
+        sql: `SELECT COUNT(*) as count FROM pastes WHERE is_private = 1`,
+        args: [],
+      }),
+    ]);
+
+  // Get top IPs from rate limits
+  const topIpsResult = await db.execute({
+    sql: `SELECT ip_date, count FROM rate_limits ORDER BY count DESC LIMIT 10`,
+    args: [],
+  });
+
+  const topIps = topIpsResult.rows.map((row) => {
+    const ipDate = row.ip_date as string;
+    const ip = ipDate.split(":").slice(0, -1).join(":"); // Handle IPv6
+    return { ip, count: row.count as number };
+  });
+
+  return {
+    totalPastes: (totalResult.rows[0]?.count as number) ?? 0,
+    pastesToday: (todayResult.rows[0]?.count as number) ?? 0,
+    pastes7Days: (weekResult.rows[0]?.count as number) ?? 0,
+    activePastes: (activeResult.rows[0]?.count as number) ?? 0,
+    totalViews: (viewsResult.rows[0]?.total as number) ?? 0,
+    burnAfterReadCount: (burnResult.rows[0]?.count as number) ?? 0,
+    privateCount: (privateResult.rows[0]?.count as number) ?? 0,
+    topIps,
+  };
+}
+
+export async function cleanupOldRateLimits(): Promise<number> {
+  const db = getDb();
+  // Get today's date string
+  const today = new Date().toISOString().split("T")[0];
+  // Delete rate limit entries not from today
+  const result = await db.execute({
+    sql: `DELETE FROM rate_limits WHERE ip_date NOT LIKE ?`,
+    args: [`%:${today}`],
+  });
+  return result.rowsAffected;
+}
+
+// Abuse reporting
+export interface Report {
+  id: number;
+  paste_id: string;
+  reason: string;
+  reporter_ip: string;
+  created_at: number;
+  resolved: number;
+}
+
+export async function createReport(pasteId: string, reason: string, reporterIp: string): Promise<void> {
+  const db = getDb();
+  const now = nowSeconds();
+
+  await db.execute({
+    sql: `INSERT INTO reports (paste_id, reason, reporter_ip, created_at) VALUES (?, ?, ?, ?)`,
+    args: [pasteId, reason, reporterIp, now],
+  });
+}
+
+export async function getReports(unresolvedOnly = true): Promise<Report[]> {
+  const db = getDb();
+
+  const result = unresolvedOnly
+    ? await db.execute({
+        sql: `SELECT * FROM reports WHERE resolved = 0 ORDER BY created_at DESC`,
+        args: [],
+      })
+    : await db.execute({
+        sql: `SELECT * FROM reports ORDER BY created_at DESC LIMIT 100`,
+        args: [],
+      });
+
+  return result.rows as unknown as Report[];
+}
+
+export async function resolveReport(id: number): Promise<boolean> {
+  const db = getDb();
+  const result = await db.execute({
+    sql: `UPDATE reports SET resolved = 1 WHERE id = ?`,
+    args: [id],
+  });
+  return result.rowsAffected > 0;
+}
+
+export async function getReportCountForPaste(pasteId: string): Promise<number> {
+  const db = getDb();
+  const result = await db.execute({
+    sql: `SELECT COUNT(*) as count FROM reports WHERE paste_id = ?`,
+    args: [pasteId],
+  });
+  return (result.rows[0]?.count as number) ?? 0;
+}

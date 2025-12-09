@@ -30,6 +30,16 @@ await client.batch(
       ip_date TEXT PRIMARY KEY,
       count   INTEGER NOT NULL DEFAULT 1
     )`,
+    `CREATE TABLE IF NOT EXISTS reports (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      paste_id    TEXT NOT NULL,
+      reason      TEXT NOT NULL,
+      reporter_ip TEXT NOT NULL,
+      created_at  INTEGER NOT NULL,
+      resolved    INTEGER NOT NULL DEFAULT 0
+    )`,
+    `CREATE INDEX IF NOT EXISTS idx_reports_paste_id ON reports(paste_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_reports_resolved ON reports(resolved)`,
   ],
   "write"
 );

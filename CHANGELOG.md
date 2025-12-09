@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2025-12-09
+
+### Added
+
+- Admin stats endpoint (`GET /api/admin/stats`)
+  - Total pastes, today/7 days counts
+  - Active pastes, total views
+  - Burn-after-read and private paste counts
+  - Top IPs by usage
+- Structured JSON logging for all requests
+  - Request method, path, status, duration
+  - Client IP and user agent
+  - Error details with stack traces
+- Scheduled cleanup cron job (every 6 hours)
+  - Removes expired pastes
+  - Cleans old rate limit entries
+- Abuse reporting system
+  - `POST /api/report/:id` - Submit abuse report
+  - Admin endpoints to view and resolve reports
+  - Admin can delete reported pastes
+
 ## [0.3.0] - 2025-12-09
 
 ### Added

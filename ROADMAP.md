@@ -45,15 +45,17 @@
 - [x] QR code for paste URL
 - [ ] Syntax highlighting for common languages (deferred - conflicts with ANSI)
 
-## Phase 4: Admin & Observability
+## Phase 4: Admin & Observability (Complete)
 
-- [ ] Admin stats endpoint (protected)
+- [x] Admin stats endpoint (protected)
   - Total pastes today/7 days
   - Top IPs by count
-- [ ] Structured logging for latency and errors
-- [ ] Scheduled cleanup job for expired pastes
-- [ ] Rate limit cleanup job
-- [ ] Abuse reporting mechanism
+- [x] Structured logging for latency and errors
+- [x] Scheduled cleanup job for expired pastes (Vercel cron every 6h)
+- [x] Rate limit cleanup job
+- [x] Abuse reporting mechanism
+  - POST /api/report/:id - Submit report
+  - Admin endpoints to view and resolve reports
 
 ## Phase 5: User Accounts & Auth
 

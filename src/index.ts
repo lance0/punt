@@ -3,7 +3,10 @@ import { html } from "@elysiajs/html";
 import { pasteRoutes } from "./routes/paste";
 import { viewRoutes } from "./routes/view";
 import { healthRoutes } from "./routes/health";
+import { adminRoutes } from "./routes/admin";
+import { cronRoutes } from "./routes/cron";
 import { renderHomePage } from "./templates/paste";
+import { logger } from "./lib/logger";
 
 const MAX_BODY_SIZE = 4 * 1024 * 1024; // 4 MB
 
@@ -12,9 +15,45 @@ const app = new Elysia({
     maxRequestBodySize: MAX_BODY_SIZE,
   },
 })
+  // Request logging middleware
+  .derive(({ request }) => {
+    return {
+      startTime: Date.now(),
+      clientIp:
+        request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+        request.headers.get("x-real-ip") ??
+        "unknown",
+    };
+  })
+  .onAfterResponse(({ request, set, startTime, clientIp }) => {
+    const duration = Date.now() - startTime;
+    const url = new URL(request.url);
+
+    // Skip logging for health checks to reduce noise
+    if (url.pathname === "/healthz") return;
+
+    logger.request({
+      method: request.method,
+      path: url.pathname,
+      status: typeof set.status === "number" ? set.status : 200,
+      duration,
+      ip: clientIp,
+      userAgent: request.headers.get("user-agent") ?? undefined,
+    });
+  })
   // Global error handler
-  .onError(({ code, error, set }) => {
-    console.error(`Error [${code}]:`, error);
+  .onError(({ code, error, set, request, startTime, clientIp }) => {
+    const duration = Date.now() - (startTime ?? Date.now());
+    const url = new URL(request.url);
+
+    logger.error("request_error", {
+      code,
+      error: error instanceof Error ? error.message : String(error),
+      method: request.method,
+      path: url.pathname,
+      duration_ms: duration,
+      ip: clientIp,
+    });
 
     switch (code) {
       case "NOT_FOUND":
@@ -36,6 +75,8 @@ const app = new Elysia({
   // Register routes
   .use(healthRoutes)
   .use(pasteRoutes)
+  .use(adminRoutes)
+  .use(cronRoutes)
   // Home page
   .get("/", () => {
     return renderHomePage();

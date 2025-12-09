@@ -1,8 +1,9 @@
 import { Elysia, t } from "elysia";
-import { createPaste, deletePaste } from "../lib/db";
+import { createPaste, deletePaste, getPaste, createReport } from "../lib/db";
 import { checkRateLimit, incrementRateLimit } from "../lib/rate-limit";
 import { parseTTL } from "../lib/time";
 import { generatePasteId, generateDeleteKey, generateViewKey } from "../lib/id";
+import { logger } from "../lib/logger";
 
 // 4 MB size limit
 const MAX_BODY_SIZE = 4 * 1024 * 1024;
@@ -144,6 +145,45 @@ export const pasteRoutes = new Elysia({ prefix: "/api" })
       params: t.Object({
         id: t.String({ minLength: 1 }),
         deleteKey: t.String({ minLength: 1 }),
+      }),
+    }
+  )
+
+  // Report abuse
+  .post(
+    "/report/:id",
+    async ({ params, body, request, set }) => {
+      const { id } = params;
+      const ip = getClientIp(request);
+
+      // Check if paste exists
+      const paste = await getPaste(id);
+      if (!paste) {
+        set.status = 404;
+        return { error: "Paste not found" };
+      }
+
+      // Validate reason
+      const reason = (body as { reason?: string })?.reason?.trim();
+      if (!reason || reason.length < 5 || reason.length > 500) {
+        set.status = 400;
+        return { error: "Reason must be between 5 and 500 characters" };
+      }
+
+      // Create report
+      await createReport(id, reason, ip);
+
+      logger.info("abuse_report", {
+        paste_id: id,
+        reporter_ip: ip,
+        reason_length: reason.length,
+      });
+
+      return { success: true, message: "Report submitted. Thank you." };
+    },
+    {
+      params: t.Object({
+        id: t.String({ minLength: 1 }),
       }),
     }
   );
