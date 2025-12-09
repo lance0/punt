@@ -36,6 +36,7 @@
 - [x] Paste size and line count display
 - [x] Improved home page design
 - [x] Friendly API response format
+- [x] Mobile responsiveness
 
 ## Phase 3: Advanced Features (Complete)
 
