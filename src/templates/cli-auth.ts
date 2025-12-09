@@ -1,5 +1,7 @@
 // CLI device auth browser page templates
 
+const FAVICON = 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Ctext%20y%3D%22.9em%22%20font-size%3D%2290%22%3E%F0%9F%8F%88%3C%2Ftext%3E%3C%2Fsvg%3E';
+
 interface AuthorizePageProps {
   code: string;
   user: { name: string; email: string; image?: string | null };
@@ -11,6 +13,7 @@ export function renderCliAuthPage(code: string): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="${FAVICON}">
   <title>punt.sh - CLI Login</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -84,6 +87,7 @@ export function renderCliAuthorizePage({ code, user }: AuthorizePageProps): stri
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="${FAVICON}">
   <title>punt.sh - Authorize CLI</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -192,6 +196,7 @@ export function renderCliSuccessPage(): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="${FAVICON}">
   <title>punt.sh - CLI Authorized</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -239,6 +244,7 @@ export function renderCliErrorPage(message: string): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="${FAVICON}">
   <title>punt.sh - Error</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }

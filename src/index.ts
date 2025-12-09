@@ -89,8 +89,10 @@ const app = new Elysia({
   .use(cliAuthRoutes)
   .use(userRoutes)
   // Home page
-  .get("/", () => {
-    return renderHomePage();
+  .get("/", async ({ request }) => {
+    // Check if user is logged in
+    const session = await auth.api.getSession({ headers: request.headers });
+    return renderHomePage(session?.user);
   })
   // View routes last (catch-all for /:id)
   .use(viewRoutes);
