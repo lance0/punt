@@ -547,24 +547,19 @@ function getNavStyles(): string {
       display: flex;
       align-items: center;
       gap: 8px;
-      color: #cdd6f4;
+      color: #6c7086;
       text-decoration: none;
       font-size: 14px;
-      padding: 8px 16px;
-      border-radius: 8px;
-      background: #313244;
-      border: 1px solid #45475a;
-      transition: all 0.2s;
+      transition: color 0.2s;
     }
 
     .nav-link:hover {
-      background: #45475a;
-      border-color: #585b70;
+      color: #cdd6f4;
     }
 
     .nav-avatar {
-      width: 24px;
-      height: 24px;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
     }
 
@@ -573,18 +568,14 @@ function getNavStyles(): string {
     }
 
     .user-link {
-      color: #a6e3a1;
+      padding: 6px 12px;
+      background: #313244;
+      border-radius: 6px;
+      color: #a6e3a1 !important;
     }
 
-    .docs-link {
-      background: transparent;
-      border-color: transparent;
-      color: #6c7086;
-    }
-
-    .docs-link:hover {
-      background: transparent;
-      color: #cdd6f4;
+    .user-link:hover {
+      background: #45475a;
     }
 
     /* Keep header horizontal when nav-links present (homepage) */
@@ -596,7 +587,6 @@ function getNavStyles(): string {
 
     @media (max-width: 768px) {
       .nav-link {
-        padding: 6px 10px;
         font-size: 12px;
         gap: 6px;
       }
@@ -607,8 +597,8 @@ function getNavStyles(): string {
       }
 
       .nav-avatar {
-        width: 20px;
-        height: 20px;
+        width: 18px;
+        height: 18px;
       }
     }
   `;
