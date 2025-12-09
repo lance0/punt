@@ -27,12 +27,21 @@
 - [ ] npm package: `npm install -g punt-cli`
 - [ ] Homebrew formula
 
+## Phase 2.5: UI Polish (Complete)
+
+- [x] Favicon (football emoji)
+- [x] Download as file button
+- [x] Toast notifications for copy/download
+- [x] Keyboard shortcuts (Ctrl+C, Ctrl+S)
+- [x] Paste size and line count display
+- [x] Improved home page design
+- [x] Friendly API response format
+
 ## Phase 3: Advanced Features
 
 - [ ] Burn after read (`X-Burn-After-Read: 1`)
 - [ ] Private pastes with view key (`X-Private: 1`)
 - [ ] Syntax highlighting for common languages
-- [ ] Download as file button
 - [ ] QR code for paste URL
 
 ## Phase 4: Admin & Observability
