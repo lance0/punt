@@ -17,7 +17,7 @@ export function renderLoginPage(): string {
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'SF Mono', monospace;
+      font-family: 'SF Mono', 'Menlo', 'Consolas', 'Monaco', monospace;
       background: #1e1e2e;
       color: #cdd6f4;
       min-height: 100vh;
@@ -81,7 +81,7 @@ export function renderDashboardPage({ user, stats, reports }: DashboardProps): s
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'SF Mono', monospace;
+      font-family: 'SF Mono', 'Menlo', 'Consolas', 'Monaco', monospace;
       background: #1e1e2e;
       color: #cdd6f4;
       min-height: 100vh;

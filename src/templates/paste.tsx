@@ -128,7 +128,7 @@ export function renderPastePage(props: PastePageProps): string {
   </footer>
 
   <!-- Toast notification -->
-  <div id="toast" class="toast"></div>
+  <div id="toast" class="toast" role="alert" aria-live="polite" aria-atomic="true"></div>
 
   <script>
     const pasteId = '${escapeHtml(id)}';
@@ -743,6 +743,10 @@ function getBaseStyles(): string {
 
     .expires {
       color: #f9e2af;
+      background: rgba(249, 226, 175, 0.1);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 500;
     }
 
     .burn-badge {

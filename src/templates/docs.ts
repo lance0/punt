@@ -18,7 +18,7 @@ export function renderDocsPage({ user }: DocsPageProps = {}): string {
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'SF Mono', 'Consolas', monospace;
+      font-family: 'SF Mono', 'Menlo', 'Consolas', 'Monaco', monospace;
       background: #1e1e2e;
       color: #cdd6f4;
       min-height: 100vh;
@@ -107,7 +107,7 @@ export function renderDocsPage({ user }: DocsPageProps = {}): string {
       font-size: 13px;
     }
     code {
-      font-family: 'SF Mono', 'Consolas', monospace;
+      font-family: 'SF Mono', 'Menlo', 'Consolas', 'Monaco', monospace;
     }
     .inline-code {
       background: #313244;

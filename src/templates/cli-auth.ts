@@ -18,7 +18,7 @@ export function renderCliAuthPage(code: string): string {
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'SF Mono', monospace;
+      font-family: 'SF Mono', 'Menlo', 'Consolas', 'Monaco', monospace;
       background: #1e1e2e;
       color: #cdd6f4;
       min-height: 100vh;
@@ -38,7 +38,7 @@ export function renderCliAuthPage(code: string): string {
     h1 { color: #89b4fa; margin-bottom: 8px; }
     p { color: #6c7086; margin-bottom: 24px; line-height: 1.5; }
     .code-display {
-      font-family: 'SF Mono', monospace;
+      font-family: 'SF Mono', 'Menlo', 'Consolas', 'Monaco', monospace;
       font-size: 18px;
       background: #313244;
       padding: 12px 20px;
@@ -92,7 +92,7 @@ export function renderCliAuthorizePage({ code, user }: AuthorizePageProps): stri
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'SF Mono', monospace;
+      font-family: 'SF Mono', 'Menlo', 'Consolas', 'Monaco', monospace;
       background: #1e1e2e;
       color: #cdd6f4;
       min-height: 100vh;
@@ -128,7 +128,7 @@ export function renderCliAuthorizePage({ code, user }: AuthorizePageProps): stri
     }
     .user-info span { color: #a6e3a1; }
     .code-display {
-      font-family: 'SF Mono', monospace;
+      font-family: 'SF Mono', 'Menlo', 'Consolas', 'Monaco', monospace;
       font-size: 18px;
       background: #313244;
       padding: 12px 20px;
@@ -201,7 +201,7 @@ export function renderCliSuccessPage(): string {
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'SF Mono', monospace;
+      font-family: 'SF Mono', 'Menlo', 'Consolas', 'Monaco', monospace;
       background: #1e1e2e;
       color: #cdd6f4;
       min-height: 100vh;
@@ -249,7 +249,7 @@ export function renderCliErrorPage(message: string): string {
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'SF Mono', monospace;
+      font-family: 'SF Mono', 'Menlo', 'Consolas', 'Monaco', monospace;
       background: #1e1e2e;
       color: #cdd6f4;
       min-height: 100vh;
