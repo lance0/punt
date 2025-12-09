@@ -376,17 +376,55 @@ export function renderHomePage(user?: HomePageUser): string {
     </div>
 
     <div class="usage-section">
-      <h2>Quick Start</h2>
-      <pre class="usage-code"><code><span class="comment"># Pipe any command output</span>
+      <div class="section-header-row">
+        <h2>Quick Start</h2>
+        <div class="mode-toggle">
+          <button class="mode-btn active" data-mode="cli" onclick="setMode('cli')">CLI</button>
+          <button class="mode-btn" data-mode="curl" onclick="setMode('curl')">curl</button>
+        </div>
+      </div>
+      <div class="usage-content" data-mode="cli">
+        <pre class="usage-code"><code><span class="comment"># Install the CLI (requires Bun)</span>
+bun install -g punt-cli
+
+<span class="comment"># Pipe any command output</span>
+command | punt
+
+<span class="comment"># With options</span>
+command | punt --ttl 1h --burn</code></pre>
+      </div>
+      <div class="usage-content" data-mode="curl" style="display:none;">
+        <pre class="usage-code"><code><span class="comment"># Pipe any command output</span>
 command | curl -X POST --data-binary @- ${baseUrl}/api/paste
 
 <span class="comment"># With custom TTL (default: 24h, max: 7d)</span>
 command | curl -X POST -H "X-TTL: 1h" --data-binary @- ${baseUrl}/api/paste</code></pre>
+      </div>
     </div>
 
     <div class="examples-section">
       <h2>Examples</h2>
-      <div class="examples-grid">
+      <div class="examples-grid examples-content" data-mode="cli">
+        <div class="example-card">
+          <div class="example-icon">🐳</div>
+          <div class="example-content">
+            <code>docker logs myapp | punt</code>
+          </div>
+        </div>
+        <div class="example-card">
+          <div class="example-icon">🔥</div>
+          <div class="example-content">
+            <code>cat secret.txt | punt --burn</code>
+          </div>
+        </div>
+        <div class="example-card">
+          <div class="example-icon">🧪</div>
+          <div class="example-content">
+            <code>npm test 2>&1 | punt --ttl 1h</code>
+          </div>
+        </div>
+      </div>
+      <div class="examples-grid examples-content" data-mode="curl" style="display:none;">
         <div class="example-card">
           <div class="example-icon">🐳</div>
           <div class="example-content">
@@ -442,6 +480,24 @@ command | curl -X POST -H "X-TTL: 1h" --data-binary @- ${baseUrl}/api/paste</cod
   <footer>
     <p>Pastes expire after at most 7 days • <a href="https://github.com/lance0/punt">GitHub</a></p>
   </footer>
+
+  <script>
+    function setMode(mode) {
+      // Update buttons
+      document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+      });
+      // Update content
+      document.querySelectorAll('.usage-content, .examples-content').forEach(el => {
+        el.style.display = el.dataset.mode === mode ? '' : 'none';
+      });
+      // Save preference
+      localStorage.setItem('punt-mode', mode);
+    }
+    // Restore preference
+    const savedMode = localStorage.getItem('punt-mode');
+    if (savedMode) setMode(savedMode);
+  </script>
 </body>
 </html>`;
 }
@@ -889,6 +945,46 @@ function getBaseStyles(): string {
     .home-page h2 {
       font-size: 18px;
       margin-bottom: 16px;
+      color: #89b4fa;
+    }
+
+    .section-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .section-header-row h2 {
+      margin-bottom: 0;
+    }
+
+    .mode-toggle {
+      display: flex;
+      gap: 4px;
+      background: #11111b;
+      padding: 4px;
+      border-radius: 8px;
+    }
+
+    .mode-btn {
+      padding: 6px 14px;
+      border: none;
+      background: transparent;
+      color: #6c7086;
+      font-family: inherit;
+      font-size: 13px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .mode-btn:hover {
+      color: #cdd6f4;
+    }
+
+    .mode-btn.active {
+      background: #313244;
       color: #89b4fa;
     }
 
