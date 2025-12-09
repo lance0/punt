@@ -9,14 +9,21 @@ export const dashboardRoutes = new Elysia()
 
   // Simple GET redirect for GitHub login (no JS required)
   .get("/login/github", async () => {
-    const result = await auth.api.signInSocial({
+    // Get the response with headers (includes state cookie)
+    const { headers, response } = await auth.api.signInSocial({
       body: { provider: "github", callbackURL: "/dashboard" },
+      returnHeaders: true,
     });
-    if (result?.url) {
-      return new Response(null, {
-        status: 302,
-        headers: { Location: result.url },
-      });
+
+    if (response?.url) {
+      // Build redirect response with the state cookie
+      const redirectHeaders = new Headers();
+      redirectHeaders.set("Location", response.url);
+      const cookie = headers?.get("set-cookie");
+      if (cookie) {
+        redirectHeaders.set("Set-Cookie", cookie);
+      }
+      return new Response(null, { status: 302, headers: redirectHeaders });
     }
     return new Response("Failed to initiate login", { status: 500 });
   })

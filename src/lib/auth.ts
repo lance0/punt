@@ -67,7 +67,7 @@ export const auth = {
       const authInstance = await getAuthPromise();
       return authInstance.api.listUserAccounts(options);
     },
-    async signInSocial(options: { body: { provider: string; callbackURL?: string } }) {
+    async signInSocial(options: { body: { provider: string; callbackURL?: string }; asResponse?: boolean; returnHeaders?: boolean }) {
       const authInstance = await getAuthPromise();
       return authInstance.api.signInSocial(options);
     },
