@@ -3,7 +3,7 @@ import { html } from "@elysiajs/html";
 import { getPaste, incrementViews, deletePasteById } from "../lib/db";
 import { ansiToHtml } from "../lib/ansi";
 import { formatTimeRemaining } from "../lib/time";
-import { renderPastePage, renderErrorPage } from "../templates/paste";
+import { renderPastePage, renderErrorPage, renderPrivateKeyPage } from "../templates/paste";
 
 export const viewRoutes = new Elysia()
   .use(html())
@@ -24,8 +24,13 @@ export const viewRoutes = new Elysia()
 
       // Check private paste access
       if (paste.is_private && paste.view_key !== viewKey) {
+        if (!viewKey) {
+          // No key provided - show key input page
+          return renderPrivateKeyPage(id);
+        }
+        // Wrong key provided
         set.status = 403;
-        return renderErrorPage("Access denied", "This paste is private and requires a valid key.");
+        return renderErrorPage("Access denied", "Invalid view key. Please check and try again.");
       }
 
       // Handle burn after read
@@ -52,6 +57,7 @@ export const viewRoutes = new Elysia()
         expiresIn,
         views: paste.views + 1,
         burnAfterRead: paste.burn_after_read === 1,
+        isPrivate: paste.is_private === 1,
       });
     },
     {

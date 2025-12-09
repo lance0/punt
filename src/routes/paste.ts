@@ -90,6 +90,7 @@ export const pasteRoutes = new Elysia({ prefix: "/api" })
       // Build response
       const baseUrl = process.env.BASE_URL ?? "https://punt.sh";
       const pasteUrl = isPrivate && viewKey ? `${baseUrl}/${id}?key=${viewKey}` : `${baseUrl}/${id}`;
+      const rawUrl = isPrivate && viewKey ? `${baseUrl}/${id}/raw?key=${viewKey}` : `${baseUrl}/${id}/raw`;
 
       set.status = 201;
       set.headers["X-RateLimit-Remaining"] = String(rateLimit.remaining - 1);
@@ -106,12 +107,18 @@ export const pasteRoutes = new Elysia({ prefix: "/api" })
           ? `${Math.floor(ttlSeconds / 3600)}h`
           : `${Math.floor(ttlSeconds / 60)}m`;
 
+      // Build status flags
+      const flags = [];
+      if (burnAfterRead) flags.push("🔥 burns after read");
+      if (isPrivate) flags.push("🔒 private");
+
       return `
 🏈 Punted!
 
    URL  ${pasteUrl}
-   Raw  ${pasteUrl}/raw
-   Expires in ${ttlDisplay} | Delete key: ${deleteKey.slice(0, 8)}...
+   Raw  ${rawUrl}
+   Expires in ${ttlDisplay}${flags.length ? ` | ${flags.join(" | ")}` : ""}
+   Delete key: ${deleteKey}
 
 `;
     }

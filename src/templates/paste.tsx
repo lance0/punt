@@ -7,6 +7,7 @@ interface PastePageProps {
   expiresIn: string;
   views: number;
   burnAfterRead: boolean;
+  isPrivate: boolean;
 }
 
 function formatSize(bytes: number): string {
@@ -16,9 +17,10 @@ function formatSize(bytes: number): string {
 }
 
 export function renderPastePage(props: PastePageProps): string {
-  const { id, content, rawContent, expiresIn, views, burnAfterRead } = props;
+  const { id, content, rawContent, expiresIn, views, burnAfterRead, isPrivate } = props;
   const lines = content.split("\n");
   const size = new TextEncoder().encode(rawContent).length;
+  const baseUrl = process.env.BASE_URL ?? "https://punt.sh";
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -53,6 +55,7 @@ export function renderPastePage(props: PastePageProps): string {
       <span class="meta-separator">•</span>
       <span class="meta expires">expires ${escapeHtml(expiresIn)}</span>
       ${burnAfterRead ? '<span class="meta burn-badge">🔥 burns after read</span>' : ""}
+      ${isPrivate ? '<span class="meta private-badge">🔒 private</span>' : ""}
     </div>
   </header>
 
@@ -80,6 +83,26 @@ export function renderPastePage(props: PastePageProps): string {
         </svg>
         Raw
       </a>
+      <button id="qr-btn" class="btn" onclick="toggleQR()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"></rect>
+          <rect x="14" y="3" width="7" height="7"></rect>
+          <rect x="3" y="14" width="7" height="7"></rect>
+          <rect x="14" y="14" width="3" height="3"></rect>
+          <line x1="21" y1="14" x2="21" y2="21"></line>
+          <line x1="14" y1="21" x2="21" y2="21"></line>
+        </svg>
+        QR
+      </button>
+    </div>
+
+    <!-- QR Code Modal -->
+    <div id="qr-modal" class="qr-modal" onclick="toggleQR()">
+      <div class="qr-content" onclick="event.stopPropagation()">
+        <h3>Scan to open</h3>
+        <div id="qr-code"></div>
+        <p class="qr-url">${baseUrl}/${escapeHtml(id)}</p>
+      </div>
     </div>
 
     <div class="paste-container">
@@ -144,7 +167,35 @@ export function renderPastePage(props: PastePageProps): string {
         e.preventDefault();
         downloadContent();
       }
+      // Escape closes QR modal
+      if (e.key === 'Escape') {
+        document.getElementById('qr-modal').classList.remove('show');
+      }
     });
+
+    // QR Code
+    let qrGenerated = false;
+    function toggleQR() {
+      const modal = document.getElementById('qr-modal');
+      modal.classList.toggle('show');
+      if (!qrGenerated && modal.classList.contains('show')) {
+        generateQR();
+        qrGenerated = true;
+      }
+    }
+
+    function generateQR() {
+      const url = '${baseUrl}/${escapeHtml(id)}';
+      const size = 200;
+      const qrContainer = document.getElementById('qr-code');
+      // Use QR Server API for simple QR generation
+      const img = document.createElement('img');
+      img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=' + size + 'x' + size + '&data=' + encodeURIComponent(url);
+      img.alt = 'QR Code';
+      img.width = size;
+      img.height = size;
+      qrContainer.appendChild(img);
+    }
   </script>
 </body>
 </html>`;
@@ -181,6 +232,101 @@ export function renderErrorPage(title: string, message: string): string {
   </footer>
 </body>
 </html>`;
+}
+
+export function renderPrivateKeyPage(id: string): string {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>punt.sh - Private paste</title>
+  <link rel="icon" href="data:image/svg+xml,${encodeURIComponent(getFavicon())}">
+  <style>${getBaseStyles()}${getPrivateKeyStyles()}</style>
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">
+      <span class="logo-icon">🏈</span>
+      punt.sh
+    </a>
+  </header>
+
+  <main class="private-page">
+    <div class="private-icon">🔒</div>
+    <h1>Private paste</h1>
+    <p>This paste is private. Enter the key to view it.</p>
+    <form class="key-form" onsubmit="submitKey(event)">
+      <input type="text" id="key-input" placeholder="Enter view key" autocomplete="off" autofocus>
+      <button type="submit" class="btn btn-primary">Unlock</button>
+    </form>
+  </main>
+
+  <footer>
+    <p>Pastes expire after at most 7 days</p>
+  </footer>
+
+  <script>
+    function submitKey(e) {
+      e.preventDefault();
+      const key = document.getElementById('key-input').value.trim();
+      if (key) {
+        window.location.href = '/${escapeHtml(id)}?key=' + encodeURIComponent(key);
+      }
+    }
+  </script>
+</body>
+</html>`;
+}
+
+function getPrivateKeyStyles(): string {
+  return `
+    .private-page {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      text-align: center;
+      min-height: 50vh;
+    }
+
+    .private-icon {
+      font-size: 64px;
+    }
+
+    .private-page h1 {
+      color: #89b4fa;
+      font-size: 24px;
+    }
+
+    .key-form {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .key-form input {
+      background: #181825;
+      border: 1px solid #313244;
+      border-radius: 8px;
+      padding: 12px 16px;
+      color: #cdd6f4;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      min-width: 250px;
+    }
+
+    .key-form input:focus {
+      border-color: #89b4fa;
+    }
+
+    .key-form input::placeholder {
+      color: #6c7086;
+    }
+  `;
 }
 
 export function renderHomePage(): string {
@@ -422,6 +568,59 @@ function getBaseStyles(): string {
       padding: 2px 8px;
       border-radius: 4px;
       font-size: 11px;
+    }
+
+    .private-badge {
+      color: #89b4fa;
+      background: rgba(137, 180, 250, 0.1);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+
+    .qr-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .qr-modal.show {
+      display: flex;
+    }
+
+    .qr-content {
+      background: #1e1e2e;
+      border: 1px solid #313244;
+      border-radius: 16px;
+      padding: 32px;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .qr-content h3 {
+      margin-bottom: 20px;
+      color: #cdd6f4;
+      font-size: 18px;
+    }
+
+    .qr-content img {
+      border-radius: 8px;
+      background: white;
+      padding: 8px;
+    }
+
+    .qr-url {
+      margin-top: 16px;
+      color: #6c7086;
+      font-size: 12px;
+      word-break: break-all;
     }
 
     main {
