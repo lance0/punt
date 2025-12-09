@@ -57,9 +57,10 @@
   - POST /api/report/:id - Submit report
   - Admin endpoints to view and resolve reports
 
-## Phase 5: User Accounts & Auth
+## Phase 5: User Accounts & Auth (In Progress)
 
-- [ ] GitHub OAuth login
+- [x] GitHub OAuth login (admin dashboard)
+- [x] Admin dashboard with stats and abuse report management
 - [ ] API tokens for CLI authentication
   - `punt login` - authenticate via browser
   - `punt logout` - clear stored token

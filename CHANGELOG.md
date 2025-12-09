@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2025-12-09
+
+### Added
+
+- GitHub OAuth admin dashboard at `/dashboard`
+  - Login with GitHub account
+  - View paste statistics (total, today, 7 days, active, views)
+  - View top IPs by usage
+  - Manage abuse reports (resolve or delete paste)
+- BetterAuth integration for session management
+- Admin access controlled via `ADMIN_GITHUB_IDS` env var
+
 ## [0.4.0] - 2025-12-09
 
 ### Added
