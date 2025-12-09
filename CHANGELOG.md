@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2025-12-09
+
+### Added
+
+- `punt` CLI tool for terminal-based paste creation
+- Pipe stdin support: `command | punt`
+- `--ttl` flag for custom expiry times
+- `--cat` flag to fetch raw paste content
+- `--show` flag to open paste in browser
+- `--delete` flag to delete pastes
+- Colorful terminal output with spinner animation
+- Football-themed branding
+
 ## [0.1.0] - 2025-12-09
 
 ### Added

@@ -18,11 +18,12 @@
 
 ## Phase 2: CLI Tool
 
-- [ ] `punt` CLI command
-- [ ] Pipe stdin to create paste: `command | punt`
-- [ ] Custom TTL flag: `--ttl 1h`
-- [ ] Show paste: `punt --show <id>`
-- [ ] Fetch raw content: `punt --cat <url>`
+- [x] `punt` CLI command
+- [x] Pipe stdin to create paste: `command | punt`
+- [x] Custom TTL flag: `--ttl 1h`
+- [x] Show paste: `punt --show <id>`
+- [x] Fetch raw content: `punt --cat <url>`
+- [x] Delete paste: `punt --delete <id> <key>`
 - [ ] npm package: `npm install -g punt-cli`
 - [ ] Homebrew formula
 
