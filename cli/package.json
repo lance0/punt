@@ -1,27 +1,38 @@
 {
-  "name": "punt-cli",
-  "version": "0.1.0",
+  "name": "@lance0/punt",
+  "version": "0.4.0",
   "description": "Share terminal output via punt.sh - quick, colorful, ephemeral",
   "type": "module",
   "bin": {
     "punt": "./index.ts"
   },
+  "files": [
+    "index.ts"
+  ],
   "scripts": {
     "start": "bun run index.ts"
   },
   "keywords": [
     "cli",
     "paste",
+    "pastebin",
     "terminal",
     "share",
     "ansi",
-    "colors"
+    "colors",
+    "output",
+    "logs",
+    "punt"
   ],
-  "author": "",
+  "author": "lance0",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/lance0/punt"
+  },
+  "homepage": "https://punt.sh",
+  "bugs": {
+    "url": "https://github.com/lance0/punt/issues"
   },
   "engines": {
     "node": ">=18",

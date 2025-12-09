@@ -2,6 +2,7 @@ import { Elysia, t } from "elysia";
 import { html } from "@elysiajs/html";
 import { getPaste, incrementViews, deletePasteById } from "../lib/db";
 import { ansiToHtml } from "../lib/ansi";
+import { highlightCode } from "../lib/highlight";
 import { formatTimeRemaining } from "../lib/time";
 import { renderPastePage, renderErrorPage, renderPrivateKeyPage } from "../templates/paste";
 
@@ -46,8 +47,13 @@ export const viewRoutes = new Elysia()
       // Increment view counter
       await incrementViews(id);
 
-      // Convert ANSI to HTML
-      const htmlContent = ansiToHtml(paste.content);
+      // Convert content to HTML - use syntax highlighting if language is set, otherwise ANSI
+      let htmlContent: string;
+      if (paste.language) {
+        htmlContent = await highlightCode(paste.content, paste.language);
+      } else {
+        htmlContent = ansiToHtml(paste.content);
+      }
       const expiresIn = formatTimeRemaining(paste.expires_at);
 
       return renderPastePage({
@@ -58,6 +64,7 @@ export const viewRoutes = new Elysia()
         views: paste.views + 1,
         burnAfterRead: paste.burn_after_read === 1,
         isPrivate: paste.is_private === 1,
+        language: paste.language,
       });
     },
     {

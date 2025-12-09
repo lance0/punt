@@ -31,6 +31,7 @@ export interface Paste {
   burn_after_read: number;
   is_private: number;
   view_key: string | null;
+  language: string | null;
 }
 
 export interface CreatePasteParams {
@@ -42,6 +43,7 @@ export interface CreatePasteParams {
   isPrivate?: boolean;
   viewKey?: string;
   userId?: string;
+  language?: string;
 }
 
 export async function createPaste(params: CreatePasteParams): Promise<void> {
@@ -49,8 +51,8 @@ export async function createPaste(params: CreatePasteParams): Promise<void> {
   const now = nowSeconds();
 
   await db.execute({
-    sql: `INSERT INTO pastes (id, content, created_at, expires_at, delete_key, burn_after_read, is_private, view_key, user_id)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    sql: `INSERT INTO pastes (id, content, created_at, expires_at, delete_key, burn_after_read, is_private, view_key, user_id, language)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     args: [
       params.id,
       params.content,
@@ -61,6 +63,7 @@ export async function createPaste(params: CreatePasteParams): Promise<void> {
       params.isPrivate ? 1 : 0,
       params.viewKey ?? null,
       params.userId ?? null,
+      params.language ?? null,
     ],
   });
 }

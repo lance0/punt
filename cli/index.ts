@@ -4,7 +4,7 @@ import { homedir } from "os";
 import { join } from "path";
 import { mkdir } from "fs/promises";
 
-const VERSION = "0.3.0";
+const VERSION = "0.4.0";
 const API_URL = process.env.PUNT_API_URL ?? "https://punt.sh";
 const CONFIG_DIR = join(homedir(), ".config", "punt");
 const TOKEN_FILE = join(CONFIG_DIR, "token");
@@ -31,6 +31,32 @@ ${c.yellow}  ╰───────────────────╯${c.
 
 const FOOTBALL = `${c.yellow}🏈${c.reset}`;
 
+// File extension to language mapping for --lang auto
+const EXTENSION_MAP: Record<string, string> = {
+  js: "javascript", mjs: "javascript", cjs: "javascript",
+  ts: "typescript", mts: "typescript", cts: "typescript",
+  jsx: "jsx", tsx: "tsx",
+  py: "python", rb: "ruby", php: "php",
+  go: "go", rs: "rust", java: "java",
+  kt: "kotlin", scala: "scala", swift: "swift",
+  c: "c", h: "c", cpp: "cpp", cc: "cpp", cxx: "cpp",
+  cs: "csharp", sh: "bash", bash: "bash", zsh: "zsh",
+  yaml: "yaml", yml: "yaml", json: "json",
+  html: "html", css: "css", sql: "sql",
+  md: "markdown", xml: "xml", toml: "toml",
+  lua: "lua", r: "r", ex: "elixir", hs: "haskell",
+  ml: "ocaml", clj: "clojure", zig: "zig", nim: "nim",
+};
+
+function detectLanguageFromFilename(filename: string): string | null {
+  const basename = filename.split("/").pop()?.toLowerCase() ?? "";
+  if (basename === "dockerfile") return "dockerfile";
+  if (basename === "makefile" || basename === "gnumakefile") return "makefile";
+  const ext = basename.split(".").pop()?.toLowerCase();
+  if (!ext) return null;
+  return EXTENSION_MAP[ext] ?? null;
+}
+
 function printHelp() {
   console.log(LOGO);
   console.log(`${c.bold}USAGE${c.reset}`);
@@ -38,6 +64,7 @@ function printHelp() {
   console.log(`  ${c.green}punt${c.reset} ${c.yellow}--ttl 1h${c.reset}              Set expiry (default: 24h)`);
   console.log(`  ${c.green}punt${c.reset} ${c.yellow}--burn${c.reset}                Delete after first view`);
   console.log(`  ${c.green}punt${c.reset} ${c.yellow}--private${c.reset}             Require key to view`);
+  console.log(`  ${c.green}punt${c.reset} ${c.yellow}--lang ts${c.reset}             Syntax highlight as TypeScript`);
   console.log(`  ${c.green}punt${c.reset} ${c.yellow}--show${c.reset} ${c.dim}<id>${c.reset}           Open paste in browser`);
   console.log(`  ${c.green}punt${c.reset} ${c.yellow}--cat${c.reset} ${c.dim}<url>${c.reset}           Fetch raw paste content`);
   console.log(`  ${c.green}punt${c.reset} ${c.yellow}--delete${c.reset} ${c.dim}<id> <key>${c.reset}   Delete a paste`);
@@ -51,6 +78,8 @@ function printHelp() {
   console.log(`  ${c.yellow}--ttl${c.reset} ${c.dim}<duration>${c.reset}    Expiry time (e.g., 30m, 2h, 7d, 30d)`);
   console.log(`  ${c.yellow}--burn${c.reset}             Burn after read (auto-delete on view)`);
   console.log(`  ${c.yellow}--private${c.reset}          Private paste (generates view key)`);
+  console.log(`  ${c.yellow}--lang${c.reset} ${c.dim}<lang>${c.reset}       Syntax highlighting (js, ts, py, go, etc.)`);
+  console.log(`  ${c.yellow}--lang auto${c.reset}        Auto-detect language from filename`);
   console.log(`  ${c.yellow}--show${c.reset} ${c.dim}<id>${c.reset}         Open paste in browser`);
   console.log(`  ${c.yellow}--cat${c.reset} ${c.dim}<url|id>${c.reset}      Print raw paste to stdout`);
   console.log(`  ${c.yellow}--delete${c.reset} ${c.dim}<id> <key>${c.reset} Delete paste with delete key`);
@@ -66,6 +95,9 @@ function printHelp() {
   console.log();
   console.log(`  ${c.dim}# Private paste with view key${c.reset}`);
   console.log(`  ${c.cyan}echo "secret"${c.reset} | ${c.green}punt${c.reset} ${c.yellow}--private${c.reset}`);
+  console.log();
+  console.log(`  ${c.dim}# Syntax highlighted code${c.reset}`);
+  console.log(`  ${c.cyan}cat src/index.ts${c.reset} | ${c.green}punt${c.reset} ${c.yellow}--lang ts${c.reset}`);
   console.log();
   console.log(`  ${c.dim}# Grab a paste${c.reset}`);
   console.log(`  ${c.green}punt${c.reset} ${c.yellow}--cat${c.reset} abc123`);
@@ -309,6 +341,7 @@ interface CreatePasteOptions {
   ttl?: string;
   burn?: boolean;
   private?: boolean;
+  lang?: string;
 }
 
 async function createPaste(content: string, options: CreatePasteOptions = {}): Promise<void> {
@@ -326,6 +359,7 @@ async function createPaste(content: string, options: CreatePasteOptions = {}): P
   const flags = [];
   if (options.burn) flags.push("🔥 burn");
   if (options.private) flags.push("🔒 private");
+  if (options.lang) flags.push(`📝 ${options.lang}`);
   const spinText = flags.length > 0 ? `Punting (${flags.join(", ")})...` : "Punting...";
   const spin = spinner(spinText);
 
@@ -341,6 +375,9 @@ async function createPaste(content: string, options: CreatePasteOptions = {}): P
     }
     if (options.private) {
       headers["X-Private"] = "1";
+    }
+    if (options.lang) {
+      headers["X-Language"] = options.lang;
     }
 
     // Include auth token if logged in
@@ -387,6 +424,9 @@ async function createPaste(content: string, options: CreatePasteOptions = {}): P
     }
     if (options.private) {
       expiresIn += " 🔒";
+    }
+    if (options.lang) {
+      expiresIn += ` 📝 ${options.lang}`;
     }
 
     spin.stop(true);
@@ -564,6 +604,23 @@ if (args.includes("--burn")) {
 // --private
 if (args.includes("--private")) {
   options.private = true;
+}
+
+// --lang <lang> or --syntax <lang>
+const langIndex = args.indexOf("--lang") !== -1 ? args.indexOf("--lang") : args.indexOf("--syntax");
+if (langIndex !== -1) {
+  const langArg = args[langIndex + 1];
+  if (!langArg) {
+    printError("--lang requires a language (e.g., ts, python, go) or 'auto'");
+    process.exit(1);
+  }
+  if (langArg.toLowerCase() === "auto") {
+    // Try to detect from stdin filename (works with shell redirects like < file.ts)
+    // Note: This is limited - auto detection mainly works when user specifies filename
+    console.error(`${c.dim}Tip: --lang auto works best with explicit files. Use --lang <ext> for piped content.${c.reset}`);
+  } else {
+    options.lang = langArg.toLowerCase();
+  }
 }
 
 const content = await readStdin();

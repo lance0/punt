@@ -1,13 +1,15 @@
 import { getAnsiCss } from "../lib/ansi";
+import { getShikiCss } from "../lib/highlight";
 
 interface PastePageProps {
   id: string;
-  content: string; // Already HTML-escaped and ANSI-converted
+  content: string; // Already HTML-escaped and converted (ANSI or syntax highlighted)
   rawContent: string; // Original content for size calculation
   expiresIn: string;
   views: number;
   burnAfterRead: boolean;
   isPrivate: boolean;
+  language?: string | null; // If set, content has syntax highlighting
 }
 
 function formatSize(bytes: number): string {
@@ -17,10 +19,13 @@ function formatSize(bytes: number): string {
 }
 
 export function renderPastePage(props: PastePageProps): string {
-  const { id, content, rawContent, expiresIn, views, burnAfterRead, isPrivate } = props;
-  const lines = content.split("\n");
+  const { id, content, rawContent, expiresIn, views, burnAfterRead, isPrivate, language } = props;
+  // Use raw content for line count to be consistent
+  const lines = rawContent.split("\n");
   const size = new TextEncoder().encode(rawContent).length;
   const baseUrl = process.env.BASE_URL ?? "https://punt.sh";
+  // Use Shiki CSS for syntax highlighted content, ANSI CSS otherwise
+  const contentCss = language ? getShikiCss() : getAnsiCss();
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -30,7 +35,7 @@ export function renderPastePage(props: PastePageProps): string {
   <meta name="robots" content="noindex, nofollow">
   <title>punt.sh - ${escapeHtml(id)}</title>
   <link rel="icon" href="data:image/svg+xml,${encodeURIComponent(getFavicon())}">
-  <style>${getBaseStyles()}${getAnsiCss()}${getToastStyles()}</style>
+  <style>${getBaseStyles()}${contentCss}${getToastStyles()}${getLanguageBadgeStyles()}</style>
 </head>
 <body>
   <div class="warning-banner">
@@ -56,6 +61,7 @@ export function renderPastePage(props: PastePageProps): string {
       <span class="meta expires">expires ${escapeHtml(expiresIn)}</span>
       ${burnAfterRead ? '<span class="meta burn-badge">🔥 burns after read</span>' : ""}
       ${isPrivate ? '<span class="meta private-badge">🔒 private</span>' : ""}
+      ${language ? `<span class="meta lang-badge">📝 ${escapeHtml(language)}</span>` : ""}
     </div>
   </header>
 
@@ -105,7 +111,7 @@ export function renderPastePage(props: PastePageProps): string {
       </div>
     </div>
 
-    <div class="paste-container">
+    <div class="paste-container${language ? ' shiki-content' : ''}">
       <div class="line-numbers">
         ${lines.map((_, i) => `<span class="line-number">${i + 1}</span>`).join("\n        ")}
       </div>
@@ -278,6 +284,18 @@ export function renderPrivateKeyPage(id: string): string {
   </script>
 </body>
 </html>`;
+}
+
+function getLanguageBadgeStyles(): string {
+  return `
+    .lang-badge {
+      color: #a6e3a1;
+      background: rgba(166, 227, 161, 0.1);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+  `;
 }
 
 function getPrivateKeyStyles(): string {

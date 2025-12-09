@@ -140,4 +140,15 @@ try {
   }
 }
 
+// Add language column to pastes for syntax highlighting
+try {
+  await client.execute(`ALTER TABLE pastes ADD COLUMN language TEXT`);
+  console.log("Added language column to pastes table");
+} catch (e) {
+  // Column likely already exists
+  if (!String(e).includes("duplicate column")) {
+    console.log("language column already exists or error:", e);
+  }
+}
+
 console.log("Database schema created successfully!");

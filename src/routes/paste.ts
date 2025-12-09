@@ -5,6 +5,7 @@ import { parseTTL, MAX_TTL, MAX_TTL_AUTHENTICATED } from "../lib/time";
 import { generatePasteId, generateDeleteKey, generateViewKey } from "../lib/id";
 import { logger } from "../lib/logger";
 import { validateApiToken, type User } from "../lib/tokens";
+import { normalizeLanguage, getSupportedLanguagesList } from "../lib/languages";
 
 // 4 MB size limit
 const MAX_BODY_SIZE = 4 * 1024 * 1024;
@@ -88,6 +89,24 @@ export const pasteRoutes = new Elysia({ prefix: "/api" })
       const isPrivate =
         request.headers.get("x-private") === "1" || request.headers.get("x-private") === "true";
 
+      // Parse language for syntax highlighting
+      const langHeader = request.headers.get("x-language");
+      let language: string | undefined;
+      if (langHeader) {
+        // "ansi" means explicitly use ANSI rendering (same as no language)
+        if (langHeader.toLowerCase() === "ansi") {
+          language = undefined;
+        } else {
+          const normalized = normalizeLanguage(langHeader);
+          if (!normalized) {
+            set.status = 400;
+            const supported = getSupportedLanguagesList().slice(0, 20).join(", ");
+            return `Unknown language: "${langHeader}". Supported languages include: ${supported}... Use "ansi" for terminal output.`;
+          }
+          language = normalized;
+        }
+      }
+
       // Generate IDs
       const id = generatePasteId();
       const deleteKey = generateDeleteKey();
@@ -103,6 +122,7 @@ export const pasteRoutes = new Elysia({ prefix: "/api" })
         isPrivate,
         viewKey,
         userId: user?.id,
+        language,
       });
 
       // Increment rate limit counter
@@ -124,6 +144,9 @@ export const pasteRoutes = new Elysia({ prefix: "/api" })
       if (ttlWarning) {
         set.headers["X-TTL-Warning"] = ttlWarning;
       }
+      if (language) {
+        set.headers["X-Language"] = language;
+      }
 
       // Format expiry time for display
       const ttlDisplay = ttlSeconds >= 86400
@@ -137,6 +160,7 @@ export const pasteRoutes = new Elysia({ prefix: "/api" })
       if (burnAfterRead) flags.push("🔥 burns after read");
       if (isPrivate) flags.push("🔒 private");
       if (isAuthenticated) flags.push("👤 authenticated");
+      if (language) flags.push(`📝 ${language}`);
 
       return `
 🏈 Punted!

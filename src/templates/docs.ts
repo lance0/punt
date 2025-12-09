@@ -267,6 +267,32 @@ echo "secret" | punt <span class="flag">--private</span>
 <span class="comment"># curl</span>
 echo "secret" | curl -H "X-Private: 1" -X POST --data-binary @- ${baseUrl}/api/paste</code></pre>
 
+    <h2>Syntax Highlighting</h2>
+    <p>By default, punt.sh preserves ANSI terminal colors. For code snippets, you can enable syntax highlighting with the <code class="inline-code">--lang</code> flag.</p>
+
+    <pre><code><span class="comment"># CLI - specify language</span>
+cat src/index.ts | punt <span class="flag">--lang typescript</span>
+cat script.py | punt <span class="flag">--lang python</span>
+cat main.go | punt <span class="flag">--lang go</span>
+
+<span class="comment"># Short aliases work too</span>
+cat app.js | punt <span class="flag">--lang js</span>
+cat script.py | punt <span class="flag">--lang py</span>
+
+<span class="comment"># curl</span>
+cat file.rs | curl -H "X-Language: rust" -X POST --data-binary @- ${baseUrl}/api/paste</code></pre>
+
+    <h3>Supported Languages</h3>
+    <p>Common languages include: JavaScript, TypeScript, Python, Go, Rust, Java, C, C++, Ruby, PHP, Bash, SQL, HTML, CSS, JSON, YAML, Markdown, and many more. Use <code class="inline-code">ansi</code> to explicitly render as terminal output.</p>
+
+    <div class="tip">
+      <div class="tip-title">When to use syntax highlighting vs ANSI</div>
+      <ul style="margin-bottom: 0;">
+        <li><strong>Use ANSI (default):</strong> Terminal output, logs, test results, command output</li>
+        <li><strong>Use --lang:</strong> Source code files, config files, snippets without ANSI colors</li>
+      </ul>
+    </div>
+
     <h2>CLI Commands</h2>
 
     <div class="table-wrap">
@@ -293,6 +319,10 @@ echo "secret" | curl -H "X-Private: 1" -X POST --data-binary @- ${baseUrl}/api/p
           <tr>
             <td><code>punt --private</code></td>
             <td>Require view key to access</td>
+          </tr>
+          <tr>
+            <td><code>punt --lang &lt;language&gt;</code></td>
+            <td>Enable syntax highlighting (e.g., ts, py, go)</td>
           </tr>
           <tr>
             <td><code>punt --cat &lt;id&gt;</code></td>
@@ -332,6 +362,7 @@ Content-Type: text/plain
 X-TTL: 1h              <span class="comment"># Expiry time</span>
 X-Burn-After-Read: 1   <span class="comment"># Delete after view</span>
 X-Private: 1           <span class="comment"># Require view key</span>
+X-Language: typescript <span class="comment"># Syntax highlighting</span>
 Authorization: Bearer punt_xxx  <span class="comment"># API token</span></code></pre>
 
     <h3>Get Paste</h3>
