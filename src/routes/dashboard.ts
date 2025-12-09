@@ -7,6 +7,19 @@ import { renderDashboardPage, renderLoginPage } from "../templates/dashboard";
 export const dashboardRoutes = new Elysia()
   .use(html())
 
+  // Simple GET redirect for GitHub login (no JS required)
+  .get("/login/github", async ({ set }) => {
+    const result = await auth.api.signInSocial({
+      body: { provider: "github", callbackURL: "/dashboard" },
+    });
+    if (result.url) {
+      set.redirect = result.url;
+      return;
+    }
+    set.status = 500;
+    return "Failed to initiate login";
+  })
+
   // Dashboard page
   .get("/dashboard", async ({ request, set }) => {
     const session = await auth.api.getSession({ headers: request.headers });
