@@ -54,6 +54,23 @@
 - [ ] Rate limit cleanup job
 - [ ] Abuse reporting mechanism
 
+## Phase 5: User Accounts & Auth
+
+- [ ] GitHub OAuth login
+- [ ] API tokens for CLI authentication
+  - `punt login` - authenticate via browser
+  - `punt logout` - clear stored token
+  - Token stored in `~/.config/punt/token`
+- [ ] User dashboard
+  - View all your pastes
+  - Delete/extend pastes
+  - Usage stats
+- [ ] Pastes linked to account (optional)
+  - Anonymous pastes still supported
+  - Authenticated pastes can have longer TTL (30 days)
+  - No rate limit for authenticated users (or higher limit)
+- [ ] Database schema: users table, paste ownership
+
 ## Future Ideas
 
 - Custom paste IDs (slug)
@@ -62,3 +79,5 @@
 - Webhook on paste creation
 - Browser extension
 - VS Code extension
+- Team/org accounts with shared pastes
+- Paste comments/annotations
