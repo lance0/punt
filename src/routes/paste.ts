@@ -23,7 +23,7 @@ export const pasteRoutes = new Elysia({ prefix: "/api" })
   // Create paste
   .post(
     "/paste",
-    async ({ body, request, set }) => {
+    async ({ request, set }) => {
       const ip = getClientIp(request);
 
       // Check rate limit
@@ -35,10 +35,13 @@ export const pasteRoutes = new Elysia({ prefix: "/api" })
         return "Rate limit exceeded. Try again tomorrow.";
       }
 
+      // Read body as text
+      const body = await request.text();
+
       // Validate body
-      if (!body || typeof body !== "string") {
+      if (!body) {
         set.status = 400;
-        return "Request body must be text/plain content";
+        return "Request body is required";
       }
 
       // Check size limit

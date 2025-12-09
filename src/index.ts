@@ -44,10 +44,3 @@ const app = new Elysia({
   .use(viewRoutes);
 
 export default app;
-
-// Start server when running locally
-if (!process.env.VERCEL) {
-  const port = process.env.PORT ?? 3000;
-  app.listen(port);
-  console.log(`punt.sh running at http://localhost:${port}`);
-}
