@@ -99,7 +99,7 @@ export const pasteRoutes = new Elysia({ prefix: "/api" })
         set.headers["X-TTL-Warning"] = ttlWarning;
       }
 
-      return pasteUrl;
+      return pasteUrl + "\n";
     }
   )
 
