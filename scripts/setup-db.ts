@@ -83,8 +83,61 @@ await client.batch(
       createdAt INTEGER NOT NULL,
       updatedAt INTEGER NOT NULL
     )`,
+    // API tokens for CLI authentication
+    `CREATE TABLE IF NOT EXISTS api_tokens (
+      id TEXT PRIMARY KEY,
+      token_hash TEXT NOT NULL UNIQUE,
+      user_id TEXT NOT NULL REFERENCES user(id),
+      name TEXT DEFAULT 'CLI Token',
+      created_at INTEGER NOT NULL,
+      last_used_at INTEGER,
+      expires_at INTEGER,
+      revoked INTEGER NOT NULL DEFAULT 0
+    )`,
+    `CREATE INDEX IF NOT EXISTS idx_api_tokens_user_id ON api_tokens(user_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_api_tokens_token_hash ON api_tokens(token_hash)`,
+    // CLI device codes for OAuth device flow
+    `CREATE TABLE IF NOT EXISTS cli_device_codes (
+      code TEXT PRIMARY KEY,
+      user_id TEXT,
+      token_id TEXT,
+      token TEXT,
+      created_at INTEGER NOT NULL,
+      expires_at INTEGER NOT NULL,
+      approved INTEGER NOT NULL DEFAULT 0
+    )`,
+    `CREATE INDEX IF NOT EXISTS idx_cli_device_codes_expires ON cli_device_codes(expires_at)`,
   ],
   "write"
 );
+
+// Add user_id column to pastes table if it doesn't exist
+try {
+  await client.execute(`ALTER TABLE pastes ADD COLUMN user_id TEXT REFERENCES user(id)`);
+  console.log("Added user_id column to pastes table");
+} catch (e) {
+  // Column likely already exists
+  if (!String(e).includes("duplicate column")) {
+    console.log("user_id column already exists or error:", e);
+  }
+}
+
+// Create index on user_id (separate because it might fail if column doesn't exist)
+try {
+  await client.execute(`CREATE INDEX IF NOT EXISTS idx_pastes_user_id ON pastes(user_id)`);
+} catch (e) {
+  // Ignore errors
+}
+
+// Add token column to cli_device_codes if it doesn't exist
+try {
+  await client.execute(`ALTER TABLE cli_device_codes ADD COLUMN token TEXT`);
+  console.log("Added token column to cli_device_codes table");
+} catch (e) {
+  // Column likely already exists
+  if (!String(e).includes("duplicate column")) {
+    console.log("token column already exists or error:", e);
+  }
+}
 
 console.log("Database schema created successfully!");

@@ -1,7 +1,8 @@
 // TTL limits in seconds
 export const MIN_TTL = 60; // 1 minute
 export const DEFAULT_TTL = 24 * 60 * 60; // 24 hours
-export const MAX_TTL = 7 * 24 * 60 * 60; // 7 days
+export const MAX_TTL = 7 * 24 * 60 * 60; // 7 days (anonymous)
+export const MAX_TTL_AUTHENTICATED = 30 * 24 * 60 * 60; // 30 days (authenticated)
 
 export interface ParsedTTL {
   seconds: number;
@@ -11,8 +12,10 @@ export interface ParsedTTL {
 /**
  * Parse TTL string into seconds
  * Supports formats: "1h", "30m", "1d", "2d12h", or raw seconds
+ * @param ttlStr - TTL string to parse
+ * @param maxTTL - Maximum allowed TTL (default: 7 days for anonymous, 30 days for authenticated)
  */
-export function parseTTL(ttlStr: string | undefined | null): ParsedTTL {
+export function parseTTL(ttlStr: string | undefined | null, maxTTL: number = MAX_TTL): ParsedTTL {
   if (!ttlStr) {
     return { seconds: DEFAULT_TTL };
   }
@@ -22,7 +25,7 @@ export function parseTTL(ttlStr: string | undefined | null): ParsedTTL {
   // Try parsing as raw seconds first
   const rawSeconds = parseInt(trimmed, 10);
   if (!isNaN(rawSeconds) && trimmed === String(rawSeconds)) {
-    return validateTTL(rawSeconds);
+    return validateTTL(rawSeconds, maxTTL);
   }
 
   // Parse duration format (e.g., "1d12h30m")
@@ -56,15 +59,16 @@ export function parseTTL(ttlStr: string | undefined | null): ParsedTTL {
     return { seconds: DEFAULT_TTL, warning: `Invalid TTL format: ${ttlStr}` };
   }
 
-  return validateTTL(totalSeconds);
+  return validateTTL(totalSeconds, maxTTL);
 }
 
-function validateTTL(seconds: number): ParsedTTL {
+function validateTTL(seconds: number, maxTTL: number = MAX_TTL): ParsedTTL {
   if (seconds < MIN_TTL) {
     return { seconds: MIN_TTL, warning: `TTL too short, minimum is ${MIN_TTL}s` };
   }
-  if (seconds > MAX_TTL) {
-    return { seconds: MAX_TTL, warning: `TTL too long, maximum is 7 days` };
+  if (seconds > maxTTL) {
+    const maxDays = Math.floor(maxTTL / (24 * 60 * 60));
+    return { seconds: maxTTL, warning: `TTL too long, maximum is ${maxDays} days` };
   }
   return { seconds };
 }

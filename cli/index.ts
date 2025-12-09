@@ -1,7 +1,13 @@
 #!/usr/bin/env bun
 
-const VERSION = "0.1.0";
+import { homedir } from "os";
+import { join } from "path";
+import { mkdir } from "fs/promises";
+
+const VERSION = "0.2.0";
 const API_URL = process.env.PUNT_API_URL ?? "https://punt.sh";
+const CONFIG_DIR = join(homedir(), ".config", "punt");
+const TOKEN_FILE = join(CONFIG_DIR, "token");
 
 // Colors for terminal output
 const c = {
@@ -34,6 +40,11 @@ function printHelp() {
   console.log(`  ${c.green}punt${c.reset} ${c.yellow}--cat${c.reset} ${c.dim}<url>${c.reset}           Fetch raw paste content`);
   console.log(`  ${c.green}punt${c.reset} ${c.yellow}--delete${c.reset} ${c.dim}<id> <key>${c.reset}   Delete a paste`);
   console.log();
+  console.log(`${c.bold}ACCOUNT${c.reset}`);
+  console.log(`  ${c.green}punt${c.reset} ${c.yellow}login${c.reset}              Sign in with GitHub`);
+  console.log(`  ${c.green}punt${c.reset} ${c.yellow}logout${c.reset}             Sign out and remove credentials`);
+  console.log(`  ${c.green}punt${c.reset} ${c.yellow}whoami${c.reset}             Show current user info`);
+  console.log();
   console.log(`${c.bold}OPTIONS${c.reset}`);
   console.log(`  ${c.yellow}--ttl${c.reset} ${c.dim}<duration>${c.reset}    Expiry time (e.g., 30m, 2h, 1d)`);
   console.log(`  ${c.yellow}--show${c.reset} ${c.dim}<id>${c.reset}         Open paste in browser`);
@@ -51,6 +62,11 @@ function printHelp() {
   console.log();
   console.log(`  ${c.dim}# Grab a paste${c.reset}`);
   console.log(`  ${c.green}punt${c.reset} ${c.yellow}--cat${c.reset} abc123`);
+  console.log();
+  console.log(`${c.bold}AUTHENTICATED BENEFITS${c.reset}`);
+  console.log(`  ${c.dim}• Extended TTL (up to 30 days vs 7 days)${c.reset}`);
+  console.log(`  ${c.dim}• Higher rate limits (1000/day vs 100/day)${c.reset}`);
+  console.log(`  ${c.dim}• Manage pastes from your dashboard${c.reset}`);
   console.log();
 }
 
@@ -93,6 +109,187 @@ function spinner(text: string): { stop: (success?: boolean) => void } {
   };
 }
 
+// Token management
+async function getToken(): Promise<string | null> {
+  try {
+    const file = Bun.file(TOKEN_FILE);
+    if (await file.exists()) {
+      const token = (await file.text()).trim();
+      return token || null;
+    }
+  } catch {
+    // File doesn't exist or can't be read
+  }
+  return null;
+}
+
+async function saveToken(token: string): Promise<void> {
+  await mkdir(CONFIG_DIR, { recursive: true, mode: 0o700 });
+  await Bun.write(TOKEN_FILE, token, { mode: 0o600 });
+}
+
+async function deleteToken(): Promise<void> {
+  try {
+    const { unlink } = await import("fs/promises");
+    await unlink(TOKEN_FILE);
+  } catch {
+    // File doesn't exist
+  }
+}
+
+// Login command - device auth flow
+async function login(): Promise<void> {
+  // Check if already logged in
+  const existingToken = await getToken();
+  if (existingToken) {
+    console.log(`${c.yellow}You're already logged in. Run ${c.green}punt logout${c.yellow} first.${c.reset}`);
+    process.exit(1);
+  }
+
+  console.log();
+  console.log(`${FOOTBALL} ${c.bold}Signing in to punt.sh${c.reset}`);
+  console.log();
+
+  // Initiate device auth flow
+  const spin = spinner("Initializing login...");
+
+  let code: string;
+  try {
+    const response = await fetch(`${API_URL}/api/cli/init`, { method: "POST" });
+    if (!response.ok) {
+      spin.stop(false);
+      printError("Failed to initialize login");
+      process.exit(1);
+    }
+    const data = await response.json() as { code: string };
+    code = data.code;
+    spin.stop(true);
+  } catch (err) {
+    spin.stop(false);
+    printError(`Failed to connect: ${err instanceof Error ? err.message : "Unknown error"}`);
+    process.exit(1);
+  }
+
+  // Open browser to authorize
+  const authUrl = `${API_URL}/cli/auth?code=${code}`;
+  console.log();
+  console.log(`${c.bold}Open this URL in your browser:${c.reset}`);
+  console.log(`  ${c.cyan}${authUrl}${c.reset}`);
+  console.log();
+
+  // Try to open browser automatically
+  const cmd = process.platform === "darwin" ? "open"
+            : process.platform === "win32" ? "start"
+            : "xdg-open";
+  try {
+    Bun.spawn([cmd, authUrl]);
+    console.log(`${c.dim}Opening browser...${c.reset}`);
+  } catch {
+    console.log(`${c.dim}Please open the URL manually.${c.reset}`);
+  }
+
+  console.log();
+  console.log(`${c.dim}Waiting for authorization...${c.reset}`);
+
+  // Poll for approval
+  const pollInterval = 2000; // 2 seconds
+  const maxPolls = 150; // 5 minutes (300s / 2s)
+
+  for (let i = 0; i < maxPolls; i++) {
+    await new Promise(resolve => setTimeout(resolve, pollInterval));
+
+    try {
+      const response = await fetch(`${API_URL}/api/cli/poll?code=${code}`);
+      if (!response.ok) {
+        continue;
+      }
+
+      const data = await response.json() as { status: string; token?: string };
+
+      if (data.status === "approved" && data.token) {
+        await saveToken(data.token);
+        console.log();
+        console.log(`${c.green}${c.bold}✓ Logged in successfully!${c.reset}`);
+        console.log(`${c.dim}Token saved to ${TOKEN_FILE}${c.reset}`);
+        console.log();
+        console.log(`Run ${c.cyan}punt whoami${c.reset} to see your account info.`);
+        console.log();
+        process.exit(0);
+      } else if (data.status === "expired") {
+        console.log();
+        printError("Login expired. Please try again.");
+        process.exit(1);
+      }
+      // status === "pending" - continue polling
+    } catch {
+      // Network error, continue polling
+    }
+  }
+
+  console.log();
+  printError("Login timed out. Please try again.");
+  process.exit(1);
+}
+
+// Logout command
+async function logout(): Promise<void> {
+  const token = await getToken();
+  if (!token) {
+    console.log(`${c.dim}Not logged in.${c.reset}`);
+    process.exit(0);
+  }
+
+  await deleteToken();
+  console.log();
+  console.log(`${c.green}${c.bold}✓ Logged out successfully!${c.reset}`);
+  console.log(`${c.dim}Token removed from ${TOKEN_FILE}${c.reset}`);
+  console.log();
+}
+
+// Whoami command
+async function whoami(): Promise<void> {
+  const token = await getToken();
+  if (!token) {
+    console.log();
+    console.log(`${c.dim}Not logged in.${c.reset}`);
+    console.log(`Run ${c.cyan}punt login${c.reset} to sign in.`);
+    console.log();
+    process.exit(0);
+  }
+
+  const spin = spinner("Fetching user info...");
+
+  try {
+    const response = await fetch(`${API_URL}/api/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!response.ok) {
+      spin.stop(false);
+      if (response.status === 401) {
+        await deleteToken();
+        printError("Token expired or invalid. Please run `punt login` again.");
+      } else {
+        printError(`Server returned ${response.status}`);
+      }
+      process.exit(1);
+    }
+
+    const user = await response.json() as { name: string; email: string };
+    spin.stop(true);
+
+    console.log();
+    console.log(`${FOOTBALL} ${c.bold}Logged in as:${c.reset}`);
+    console.log(`   ${c.bold}Name${c.reset}   ${user.name}`);
+    console.log(`   ${c.bold}Email${c.reset}  ${user.email}`);
+    console.log();
+  } catch (err) {
+    spin.stop(false);
+    printError(`Failed to connect: ${err instanceof Error ? err.message : "Unknown error"}`);
+    process.exit(1);
+  }
+}
+
 async function readStdin(): Promise<string> {
   const chunks: Buffer[] = [];
   for await (const chunk of Bun.stdin.stream()) {
@@ -121,6 +318,12 @@ async function createPaste(content: string, ttl?: string): Promise<void> {
     };
     if (ttl) {
       headers["X-TTL"] = ttl;
+    }
+
+    // Include auth token if logged in
+    const token = await getToken();
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
     }
 
     const response = await fetch(`${API_URL}/api/paste`, {
@@ -240,6 +443,22 @@ if (args.includes("--help") || args.includes("-h")) {
 
 if (args.includes("--version") || args.includes("-v")) {
   printVersion();
+  process.exit(0);
+}
+
+// Subcommands: login, logout, whoami
+if (args[0] === "login") {
+  await login();
+  process.exit(0);
+}
+
+if (args[0] === "logout") {
+  await logout();
+  process.exit(0);
+}
+
+if (args[0] === "whoami") {
+  await whoami();
   process.exit(0);
 }
 

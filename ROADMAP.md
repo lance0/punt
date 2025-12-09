@@ -57,23 +57,25 @@
   - POST /api/report/:id - Submit report
   - Admin endpoints to view and resolve reports
 
-## Phase 5: User Accounts & Auth (In Progress)
+## Phase 5: User Accounts & Auth (Complete)
 
 - [x] GitHub OAuth login (admin dashboard)
 - [x] Admin dashboard with stats and abuse report management
-- [ ] API tokens for CLI authentication
-  - `punt login` - authenticate via browser
+- [x] API tokens for CLI authentication
+  - `punt login` - authenticate via browser device code flow
   - `punt logout` - clear stored token
+  - `punt whoami` - show current user info
   - Token stored in `~/.config/punt/token`
-- [ ] User dashboard
+- [x] User dashboard at `/me`
   - View all your pastes
-  - Delete/extend pastes
-  - Usage stats
-- [ ] Pastes linked to account (optional)
-  - Anonymous pastes still supported
-  - Authenticated pastes can have longer TTL (30 days)
-  - No rate limit for authenticated users (or higher limit)
-- [ ] Database schema: users table, paste ownership
+  - Delete/extend pastes (+7 days)
+  - Usage stats (total pastes, active, views)
+  - API token management (create, revoke)
+- [x] Pastes linked to account (optional)
+  - Anonymous pastes still supported (100/day, 7 days max)
+  - Authenticated pastes: 1000/day rate limit, 30 days max TTL
+  - user_id column on pastes table
+- [x] Database schema: api_tokens, cli_device_codes tables
 
 ## Future Ideas
 

@@ -8,10 +8,13 @@ export const dashboardRoutes = new Elysia()
   .use(html())
 
   // Simple GET redirect for GitHub login (no JS required)
-  .get("/login/github", async () => {
+  .get("/login/github", async ({ query }) => {
+    // Support callbackURL parameter for redirecting after login
+    const callbackURL = (query as { callbackURL?: string })?.callbackURL || "/dashboard";
+
     // Get the response with headers (includes state cookie)
     const result = await auth.api.signInSocial({
-      body: { provider: "github", callbackURL: "/dashboard" },
+      body: { provider: "github", callbackURL },
       returnHeaders: true,
     }) as unknown as { headers: Headers; response: { url?: string } };
 

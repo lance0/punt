@@ -6,6 +6,8 @@ import { healthRoutes } from "./routes/health";
 import { adminRoutes } from "./routes/admin";
 import { cronRoutes } from "./routes/cron";
 import { dashboardRoutes } from "./routes/dashboard";
+import { cliAuthRoutes } from "./routes/cli-auth";
+import { userRoutes } from "./routes/user";
 import { renderHomePage } from "./templates/paste";
 import { logger } from "./lib/logger";
 import { auth } from "./lib/auth";
@@ -84,6 +86,8 @@ const app = new Elysia({
   .use(adminRoutes)
   .use(cronRoutes)
   .use(dashboardRoutes)
+  .use(cliAuthRoutes)
+  .use(userRoutes)
   // Home page
   .get("/", () => {
     return renderHomePage();

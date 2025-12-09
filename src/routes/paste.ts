@@ -1,9 +1,10 @@
 import { Elysia, t } from "elysia";
 import { createPaste, deletePaste, getPaste, createReport } from "../lib/db";
-import { checkRateLimit, incrementRateLimit } from "../lib/rate-limit";
-import { parseTTL } from "../lib/time";
+import { checkRateLimit, incrementRateLimit, checkUserRateLimit, incrementUserRateLimit } from "../lib/rate-limit";
+import { parseTTL, MAX_TTL, MAX_TTL_AUTHENTICATED } from "../lib/time";
 import { generatePasteId, generateDeleteKey, generateViewKey } from "../lib/id";
 import { logger } from "../lib/logger";
+import { validateApiToken, type User } from "../lib/tokens";
 
 // 4 MB size limit
 const MAX_BODY_SIZE = 4 * 1024 * 1024;
@@ -20,6 +21,16 @@ function getClientIp(request: Request): string {
   return "127.0.0.1";
 }
 
+// Get authenticated user from Authorization header
+async function getAuthUser(request: Request): Promise<User | null> {
+  const authHeader = request.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return null;
+  }
+  const token = authHeader.slice(7);
+  return validateApiToken(token);
+}
+
 export const pasteRoutes = new Elysia({ prefix: "/api" })
   // Create paste
   .post(
@@ -27,8 +38,15 @@ export const pasteRoutes = new Elysia({ prefix: "/api" })
     async ({ request, set }) => {
       const ip = getClientIp(request);
 
-      // Check rate limit
-      const rateLimit = await checkRateLimit(ip);
+      // Check for authenticated user
+      const user = await getAuthUser(request);
+      const isAuthenticated = !!user;
+
+      // Check rate limit (user-based for authenticated, IP-based for anonymous)
+      const rateLimit = isAuthenticated
+        ? await checkUserRateLimit(user.id)
+        : await checkRateLimit(ip);
+
       if (!rateLimit.allowed) {
         set.status = 429;
         set.headers["X-RateLimit-Remaining"] = "0";
@@ -58,9 +76,10 @@ export const pasteRoutes = new Elysia({ prefix: "/api" })
         return "Content cannot be empty";
       }
 
-      // Parse TTL from header
+      // Parse TTL from header (30 days max for authenticated, 7 days for anonymous)
       const ttlHeader = request.headers.get("x-ttl") ?? request.headers.get("x-expires");
-      const { seconds: ttlSeconds, warning: ttlWarning } = parseTTL(ttlHeader);
+      const maxTTL = isAuthenticated ? MAX_TTL_AUTHENTICATED : MAX_TTL;
+      const { seconds: ttlSeconds, warning: ttlWarning } = parseTTL(ttlHeader, maxTTL);
 
       // Parse optional flags
       const burnAfterRead =
@@ -74,7 +93,7 @@ export const pasteRoutes = new Elysia({ prefix: "/api" })
       const deleteKey = generateDeleteKey();
       const viewKey = isPrivate ? generateViewKey() : undefined;
 
-      // Create paste
+      // Create paste (with user_id if authenticated)
       await createPaste({
         id,
         content: body,
@@ -83,10 +102,15 @@ export const pasteRoutes = new Elysia({ prefix: "/api" })
         burnAfterRead,
         isPrivate,
         viewKey,
+        userId: user?.id,
       });
 
       // Increment rate limit counter
-      await incrementRateLimit(ip);
+      if (isAuthenticated) {
+        await incrementUserRateLimit(user.id);
+      } else {
+        await incrementRateLimit(ip);
+      }
 
       // Build response
       const baseUrl = process.env.BASE_URL ?? "https://punt.sh";
@@ -112,6 +136,7 @@ export const pasteRoutes = new Elysia({ prefix: "/api" })
       const flags = [];
       if (burnAfterRead) flags.push("🔥 burns after read");
       if (isPrivate) flags.push("🔒 private");
+      if (isAuthenticated) flags.push("👤 authenticated");
 
       return `
 🏈 Punted!

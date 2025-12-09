@@ -41,6 +41,7 @@ export interface CreatePasteParams {
   burnAfterRead?: boolean;
   isPrivate?: boolean;
   viewKey?: string;
+  userId?: string;
 }
 
 export async function createPaste(params: CreatePasteParams): Promise<void> {
@@ -48,8 +49,8 @@ export async function createPaste(params: CreatePasteParams): Promise<void> {
   const now = nowSeconds();
 
   await db.execute({
-    sql: `INSERT INTO pastes (id, content, created_at, expires_at, delete_key, burn_after_read, is_private, view_key)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    sql: `INSERT INTO pastes (id, content, created_at, expires_at, delete_key, burn_after_read, is_private, view_key, user_id)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     args: [
       params.id,
       params.content,
@@ -59,6 +60,7 @@ export async function createPaste(params: CreatePasteParams): Promise<void> {
       params.burnAfterRead ? 1 : 0,
       params.isPrivate ? 1 : 0,
       params.viewKey ?? null,
+      params.userId ?? null,
     ],
   });
 }
@@ -99,6 +101,75 @@ export async function deletePasteById(id: string): Promise<void> {
     sql: `DELETE FROM pastes WHERE id = ?`,
     args: [id],
   });
+}
+
+// User paste management
+export interface UserPaste extends Paste {
+  user_id: string | null;
+}
+
+export async function getUserPastes(userId: string): Promise<UserPaste[]> {
+  const db = getDb();
+  const now = nowSeconds();
+
+  const result = await db.execute({
+    sql: `SELECT * FROM pastes WHERE user_id = ? AND expires_at > ? ORDER BY created_at DESC`,
+    args: [userId, now],
+  });
+
+  return result.rows as unknown as UserPaste[];
+}
+
+export async function getUserPasteStats(userId: string): Promise<{
+  totalPastes: number;
+  activePastes: number;
+  totalViews: number;
+}> {
+  const db = getDb();
+  const now = nowSeconds();
+
+  const [totalResult, activeResult, viewsResult] = await Promise.all([
+    db.execute({
+      sql: `SELECT COUNT(*) as count FROM pastes WHERE user_id = ?`,
+      args: [userId],
+    }),
+    db.execute({
+      sql: `SELECT COUNT(*) as count FROM pastes WHERE user_id = ? AND expires_at > ?`,
+      args: [userId, now],
+    }),
+    db.execute({
+      sql: `SELECT SUM(views) as total FROM pastes WHERE user_id = ?`,
+      args: [userId],
+    }),
+  ]);
+
+  return {
+    totalPastes: (totalResult.rows[0]?.count as number) ?? 0,
+    activePastes: (activeResult.rows[0]?.count as number) ?? 0,
+    totalViews: (viewsResult.rows[0]?.total as number) ?? 0,
+  };
+}
+
+export async function deleteUserPaste(id: string, userId: string): Promise<boolean> {
+  const db = getDb();
+  const result = await db.execute({
+    sql: `DELETE FROM pastes WHERE id = ? AND user_id = ?`,
+    args: [id, userId],
+  });
+  return result.rowsAffected > 0;
+}
+
+export async function extendPasteTTL(
+  id: string,
+  userId: string,
+  additionalSeconds: number
+): Promise<boolean> {
+  const db = getDb();
+  const result = await db.execute({
+    sql: `UPDATE pastes SET expires_at = expires_at + ? WHERE id = ? AND user_id = ?`,
+    args: [additionalSeconds, id, userId],
+  });
+  return result.rowsAffected > 0;
 }
 
 export async function cleanupExpiredPastes(): Promise<number> {

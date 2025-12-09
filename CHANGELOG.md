@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2025-12-09
+
+### Added
+
+- Complete user authentication and account system
+  - CLI authentication via device code flow (`punt login`, `punt logout`, `punt whoami`)
+  - API tokens for CLI authentication (format: `punt_<nanoid>`)
+  - Token stored in `~/.config/punt/token`
+- User dashboard at `/me`
+  - View all your pastes with stats
+  - Delete pastes or extend TTL (+7 days)
+  - Create and revoke API tokens
+- Authenticated paste creation benefits
+  - Rate limit: 1000/day (vs 100/day anonymous)
+  - Max TTL: 30 days (vs 7 days anonymous)
+  - Pastes linked to your account for management
+- New database tables
+  - `api_tokens` for CLI authentication tokens
+  - `cli_device_codes` for device auth flow
+  - `user_id` column on pastes table
+
+### Changed
+
+- CLI version bumped to 0.2.0
+- Anonymous rate limit now explicitly 100/day per IP
+- TTL validation now shows max days in warning message
+
 ## [0.5.0] - 2025-12-09
 
 ### Added
