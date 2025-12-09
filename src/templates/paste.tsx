@@ -660,7 +660,7 @@ function getBaseStyles(): string {
     }
 
     body {
-      font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
+      font-family: 'SF Mono', 'Menlo', 'Consolas', 'Monaco', monospace;
       background-color: #1e1e2e;
       color: #cdd6f4;
       min-height: 100vh;
