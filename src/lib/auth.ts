@@ -1,9 +1,11 @@
 import { betterAuth } from "better-auth";
-import { LibsqlDialect } from "@libsql/kysely-libsql";
 
 let _auth: ReturnType<typeof betterAuth> | null = null;
 
-function createAuth() {
+async function createAuth() {
+  // Dynamic import to avoid blocking module initialization
+  const { LibsqlDialect } = await import("@libsql/kysely-libsql");
+
   const dialect = new LibsqlDialect({
     url: process.env.TURSO_DATABASE_URL!,
     authToken: process.env.TURSO_AUTH_TOKEN,
@@ -30,20 +32,33 @@ function createAuth() {
   });
 }
 
-export function getAuth() {
+export async function getAuth() {
   if (!_auth) {
-    _auth = createAuth();
+    _auth = await createAuth();
   }
   return _auth;
 }
 
-// For backwards compatibility - lazy getter
+// For backwards compatibility - but now async
 export const auth = {
   get handler() {
-    return getAuth().handler;
+    // This needs to return a handler that initializes on first call
+    return async (request: Request) => {
+      const authInstance = await getAuth();
+      return authInstance.handler(request);
+    };
   },
   get api() {
-    return getAuth().api;
+    // Return a proxy that handles async initialization
+    return new Proxy({} as ReturnType<typeof betterAuth>["api"], {
+      get(_, prop) {
+        return async (...args: unknown[]) => {
+          const authInstance = await getAuth();
+          // @ts-ignore
+          return authInstance.api[prop](...args);
+        };
+      },
+    });
   },
 };
 
