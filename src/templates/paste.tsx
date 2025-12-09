@@ -478,6 +478,12 @@ function getBaseStyles(): string {
       padding: 0;
     }
 
+    html, body {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
     body {
       font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
       background-color: #1e1e2e;
@@ -495,6 +501,7 @@ function getBaseStyles(): string {
       font-size: 13px;
       font-family: system-ui, -apple-system, sans-serif;
       font-weight: 500;
+      width: 100%;
     }
 
     header {
@@ -506,6 +513,7 @@ function getBaseStyles(): string {
       flex-wrap: wrap;
       gap: 12px;
       background: rgba(17, 17, 27, 0.5);
+      width: 100%;
     }
 
     .header-left {
@@ -626,7 +634,8 @@ function getBaseStyles(): string {
     main {
       flex: 1;
       padding: 24px;
-      overflow: auto;
+      overflow: hidden;
+      max-width: 100%;
     }
 
     .toolbar {
@@ -683,6 +692,8 @@ function getBaseStyles(): string {
       overflow: hidden;
       border: 1px solid #313244;
       box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      max-width: 100%;
+      width: 100%;
     }
 
     .line-numbers {
@@ -709,12 +720,14 @@ function getBaseStyles(): string {
 
     .paste-content {
       flex: 1;
+      min-width: 0;
       padding: 16px;
       overflow-x: auto;
       font-size: 13px;
       line-height: 1.5;
       white-space: pre;
       margin: 0;
+      -webkit-overflow-scrolling: touch;
     }
 
     .paste-content code {
@@ -759,7 +772,8 @@ function getBaseStyles(): string {
     .home-page {
       max-width: 900px;
       margin: 0 auto;
-      padding: 20px 0;
+      padding: 20px 16px;
+      width: 100%;
     }
 
     .hero {
@@ -801,6 +815,8 @@ function getBaseStyles(): string {
       overflow-x: auto;
       font-size: 13px;
       line-height: 1.8;
+      max-width: 100%;
+      -webkit-overflow-scrolling: touch;
     }
 
     .usage-code .comment {
@@ -821,6 +837,8 @@ function getBaseStyles(): string {
       align-items: center;
       gap: 16px;
       transition: border-color 0.2s;
+      max-width: 100%;
+      overflow: hidden;
     }
 
     .example-card:hover {
@@ -834,12 +852,16 @@ function getBaseStyles(): string {
 
     .example-content {
       overflow-x: auto;
+      min-width: 0;
+      flex: 1;
+      -webkit-overflow-scrolling: touch;
     }
 
     .example-content code {
       font-size: 12px;
       color: #a6adc8;
       white-space: nowrap;
+      display: block;
     }
 
     .features-grid {
@@ -925,11 +947,16 @@ function getBaseStyles(): string {
 
       main {
         padding: 12px;
+        overflow: hidden;
       }
 
       .toolbar {
         flex-wrap: wrap;
         gap: 6px;
+      }
+
+      .paste-container {
+        max-width: calc(100vw - 24px);
       }
 
       .btn {
@@ -979,21 +1006,41 @@ function getBaseStyles(): string {
         height: 160px !important;
       }
 
+      /* Home page mobile */
+      .home-page {
+        padding: 16px 12px;
+      }
+
+      .hero {
+        margin-bottom: 32px;
+      }
+
       .hero h1 {
         font-size: 24px;
+        line-height: 1.2;
       }
 
       .tagline {
         font-size: 14px;
       }
 
+      .tagline br {
+        display: none;
+      }
+
+      .usage-section, .examples-section, .features-section {
+        margin-bottom: 32px;
+      }
+
       .usage-code {
-        font-size: 11px;
+        font-size: 10px;
         padding: 12px;
+        border-radius: 8px;
       }
 
       .example-card {
         padding: 12px;
+        gap: 12px;
       }
 
       .example-icon {
@@ -1001,7 +1048,7 @@ function getBaseStyles(): string {
       }
 
       .example-content code {
-        font-size: 10px;
+        font-size: 9px;
       }
 
       .features-grid {
