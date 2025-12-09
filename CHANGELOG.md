@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.1] - 2025-12-09
+
+### Added
+
+- "Sign in with GitHub" button on homepage header
+- User navigation shows avatar + name when logged in, links to dashboard
+- Favicon added to all template pages (dashboard, CLI auth, user dashboard)
+
+### Changed
+
+- Homepage now checks session state to show appropriate navigation
+
 ## [0.6.0] - 2025-12-09
 
 ### Added

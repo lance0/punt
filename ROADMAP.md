@@ -76,6 +76,9 @@
   - Authenticated pastes: 1000/day rate limit, 30 days max TTL
   - user_id column on pastes table
 - [x] Database schema: api_tokens, cli_device_codes tables
+- [x] Homepage "Sign in with GitHub" button
+- [x] User navigation (avatar + name when logged in)
+- [x] Favicon on all auth/dashboard pages
 
 ## Future Ideas
 
