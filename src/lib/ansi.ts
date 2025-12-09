@@ -4,6 +4,8 @@ const ansiUp = new AnsiUp();
 
 // Configure for terminal-like rendering
 ansiUp.use_classes = true;
+// Ensure HTML escaping is enabled (default, but explicit for security)
+ansiUp.escape_html = true;
 
 /**
  * Convert ANSI escape codes to HTML with proper escaping

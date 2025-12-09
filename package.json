@@ -2,9 +2,13 @@
   "name": "punt",
   "version": "0.6.2",
   "description": "Share terminal output instantly - CLI tool, ANSI color support, syntax highlighting, GitHub auth",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lance0/punt.git"
+  },
   "module": "src/index.ts",
   "type": "module",
-  "private": true,
   "scripts": {
     "dev": "bun run --hot src/index.ts",
     "start": "bun run src/index.ts",
