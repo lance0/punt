@@ -5,8 +5,10 @@ import { viewRoutes } from "./routes/view";
 import { healthRoutes } from "./routes/health";
 import { adminRoutes } from "./routes/admin";
 import { cronRoutes } from "./routes/cron";
+import { dashboardRoutes } from "./routes/dashboard";
 import { renderHomePage } from "./templates/paste";
 import { logger } from "./lib/logger";
+import { auth } from "./lib/auth";
 
 const MAX_BODY_SIZE = 4 * 1024 * 1024; // 4 MB
 
@@ -72,11 +74,14 @@ const app = new Elysia({
   })
   // Use HTML plugin
   .use(html())
+  // Mount BetterAuth handler
+  .mount("/api/auth", auth.handler)
   // Register routes
   .use(healthRoutes)
   .use(pasteRoutes)
   .use(adminRoutes)
   .use(cronRoutes)
+  .use(dashboardRoutes)
   // Home page
   .get("/", () => {
     return renderHomePage();

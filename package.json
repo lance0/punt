@@ -20,7 +20,9 @@
   "dependencies": {
     "@elysiajs/html": "^1.4.0",
     "@libsql/client": "^0.15.15",
+    "@libsql/kysely-libsql": "^0.4.1",
     "ansi_up": "^6.0.6",
+    "better-auth": "^1.4.6",
     "elysia": "^1.4.18",
     "nanoid": "^5.1.6"
   }
