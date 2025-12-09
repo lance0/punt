@@ -465,6 +465,7 @@ function getNavStyles(): string {
       display: flex;
       align-items: center;
       gap: 16px;
+      margin-left: auto;
     }
 
     .nav-link {
@@ -500,10 +501,23 @@ function getNavStyles(): string {
       color: #a6e3a1;
     }
 
+    /* Keep header horizontal when nav-links present (homepage) */
+    header:has(.nav-links) {
+      flex-direction: row !important;
+      align-items: center !important;
+      flex-wrap: nowrap;
+    }
+
     @media (max-width: 768px) {
       .nav-link {
-        padding: 6px 12px;
-        font-size: 13px;
+        padding: 6px 10px;
+        font-size: 12px;
+        gap: 6px;
+      }
+
+      .nav-link svg {
+        width: 14px;
+        height: 14px;
       }
 
       .nav-avatar {
