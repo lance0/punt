@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2025-12-09
+
+### Added
+
+- Burn after read feature (`X-Burn-After-Read: 1` header)
+  - Shows 🔥 badge on paste
+  - Automatically deletes after first view
+- Private pastes (`X-Private: 1` header)
+  - Requires view key to access
+  - Shows key input page when accessing without key
+  - Shows 🔒 badge on paste
+- QR code modal for easy mobile sharing
+  - Click QR button in toolbar to generate
+
+### Changed
+
+- API response now shows full delete key
+- Fixed raw URL for private pastes (key goes after /raw)
+
 ## [0.2.2] - 2025-12-09
 
 ### Changed

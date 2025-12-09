@@ -37,12 +37,12 @@
 - [x] Improved home page design
 - [x] Friendly API response format
 
-## Phase 3: Advanced Features
+## Phase 3: Advanced Features (Complete)
 
-- [ ] Burn after read (`X-Burn-After-Read: 1`)
-- [ ] Private pastes with view key (`X-Private: 1`)
-- [ ] Syntax highlighting for common languages
-- [ ] QR code for paste URL
+- [x] Burn after read (`X-Burn-After-Read: 1`)
+- [x] Private pastes with view key (`X-Private: 1`)
+- [x] QR code for paste URL
+- [ ] Syntax highlighting for common languages (deferred - conflicts with ANSI)
 
 ## Phase 4: Admin & Observability
 
