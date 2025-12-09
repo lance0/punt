@@ -74,8 +74,10 @@ const app = new Elysia({
   })
   // Use HTML plugin
   .use(html())
-  // Mount BetterAuth handler
-  .mount("/api/auth", auth.handler)
+  // BetterAuth handler - use all() to catch all auth routes
+  .all("/api/auth/*", async ({ request }) => {
+    return auth.handler(request);
+  })
   // Register routes
   .use(healthRoutes)
   .use(pasteRoutes)
