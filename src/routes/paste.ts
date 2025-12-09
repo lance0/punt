@@ -32,7 +32,7 @@ async function getAuthUser(request: Request): Promise<User | null> {
   return validateApiToken(token);
 }
 
-export const pasteRoutes = new Elysia({ prefix: "/api" })
+export const pasteRoutes = new Elysia({ prefix: "/api", detail: { tags: ["paste"] } })
   // Create paste
   .post(
     "/paste",
@@ -171,6 +171,13 @@ export const pasteRoutes = new Elysia({ prefix: "/api" })
    Delete key: ${deleteKey}
 
 `;
+    },
+    {
+      detail: {
+        summary: "Create paste",
+        description: "Create a new paste from text content. Supports ANSI colors and optional syntax highlighting.",
+        tags: ["paste"],
+      },
     }
   )
 
@@ -195,6 +202,11 @@ export const pasteRoutes = new Elysia({ prefix: "/api" })
         id: t.String({ minLength: 1 }),
         deleteKey: t.String({ minLength: 1 }),
       }),
+      detail: {
+        summary: "Delete paste",
+        description: "Delete a paste using its ID and delete key.",
+        tags: ["paste"],
+      },
     }
   )
 
@@ -234,5 +246,10 @@ export const pasteRoutes = new Elysia({ prefix: "/api" })
       params: t.Object({
         id: t.String({ minLength: 1 }),
       }),
+      detail: {
+        summary: "Report abuse",
+        description: "Report a paste for abuse or policy violation.",
+        tags: ["paste"],
+      },
     }
   );

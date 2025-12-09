@@ -74,6 +74,11 @@ export const viewRoutes = new Elysia()
       query: t.Object({
         key: t.Optional(t.String()),
       }),
+      detail: {
+        summary: "View paste",
+        description: "View a paste with rendered ANSI colors or syntax highlighting.",
+        tags: ["paste"],
+      },
     }
   )
 
@@ -117,5 +122,10 @@ export const viewRoutes = new Elysia()
       query: t.Object({
         key: t.Optional(t.String()),
       }),
+      detail: {
+        summary: "Get raw paste content",
+        description: "Get the raw text content of a paste without any rendering.",
+        tags: ["paste"],
+      },
     }
   );
