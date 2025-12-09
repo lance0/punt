@@ -99,7 +99,21 @@ export const pasteRoutes = new Elysia({ prefix: "/api" })
         set.headers["X-TTL-Warning"] = ttlWarning;
       }
 
-      return pasteUrl + "\n";
+      // Format expiry time for display
+      const ttlDisplay = ttlSeconds >= 86400
+        ? `${Math.floor(ttlSeconds / 86400)}d`
+        : ttlSeconds >= 3600
+          ? `${Math.floor(ttlSeconds / 3600)}h`
+          : `${Math.floor(ttlSeconds / 60)}m`;
+
+      return `
+🏈 Punted!
+
+   URL  ${pasteUrl}
+   Raw  ${pasteUrl}/raw
+   Expires in ${ttlDisplay} | Delete key: ${deleteKey.slice(0, 8)}...
+
+`;
     }
   )
 
