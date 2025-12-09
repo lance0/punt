@@ -12,12 +12,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - GitHub OAuth admin dashboard at `/dashboard`
-  - Login with GitHub account
+  - Login with GitHub account (no JavaScript required - server-side redirect)
   - View paste statistics (total, today, 7 days, active, views)
   - View top IPs by usage
   - Manage abuse reports (resolve or delete paste)
 - BetterAuth integration for session management
+  - Lazy-loaded auth to avoid blocking serverless cold starts
+  - Proper OAuth state cookie forwarding for serverless environments
 - Admin access controlled via `ADMIN_GITHUB_IDS` env var
+- New env vars: `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `BETTER_AUTH_SECRET`
 
 ## [0.4.0] - 2025-12-09
 
