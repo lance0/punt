@@ -1,8 +1,8 @@
 import { Elysia, t } from "elysia";
-import { createPaste, deletePaste } from "../lib/db.ts";
-import { checkRateLimit, incrementRateLimit } from "../lib/rate-limit.ts";
-import { parseTTL } from "../lib/time.ts";
-import { generatePasteId, generateDeleteKey, generateViewKey } from "../lib/id.ts";
+import { createPaste, deletePaste } from "../lib/db";
+import { checkRateLimit, incrementRateLimit } from "../lib/rate-limit";
+import { parseTTL } from "../lib/time";
+import { generatePasteId, generateDeleteKey, generateViewKey } from "../lib/id";
 
 // 4 MB size limit
 const MAX_BODY_SIZE = 4 * 1024 * 1024;

@@ -1,4 +1,4 @@
-import { getDb } from "./db.ts";
+import { getDb } from "./db";
 
 const DAILY_LIMIT = 100; // pastes per IP per day
 

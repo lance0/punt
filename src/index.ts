@@ -1,9 +1,9 @@
 import { Elysia } from "elysia";
 import { html } from "@elysiajs/html";
-import { pasteRoutes } from "./routes/paste.ts";
-import { viewRoutes } from "./routes/view.ts";
-import { healthRoutes } from "./routes/health.ts";
-import { renderHomePage } from "./templates/paste.tsx";
+import { pasteRoutes } from "./routes/paste";
+import { viewRoutes } from "./routes/view";
+import { healthRoutes } from "./routes/health";
+import { renderHomePage } from "./templates/paste";
 
 const MAX_BODY_SIZE = 4 * 1024 * 1024; // 4 MB
 

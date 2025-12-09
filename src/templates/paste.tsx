@@ -1,5 +1,4 @@
-import * as Html from "@elysiajs/html";
-import { getAnsiCss } from "../lib/ansi.ts";
+import { getAnsiCss } from "../lib/ansi";
 
 interface PastePageProps {
   id: string;

@@ -1,5 +1,5 @@
 import { createClient, type Client } from "@libsql/client";
-import { nowSeconds } from "./time.ts";
+import { nowSeconds } from "./time";
 
 let client: Client | null = null;
 

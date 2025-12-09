@@ -1,9 +1,9 @@
 import { Elysia, t } from "elysia";
 import { html } from "@elysiajs/html";
-import { getPaste, incrementViews, deletePasteById } from "../lib/db.ts";
-import { ansiToHtml } from "../lib/ansi.ts";
-import { formatTimeRemaining } from "../lib/time.ts";
-import { renderPastePage, renderErrorPage } from "../templates/paste.tsx";
+import { getPaste, incrementViews, deletePasteById } from "../lib/db";
+import { ansiToHtml } from "../lib/ansi";
+import { formatTimeRemaining } from "../lib/time";
+import { renderPastePage, renderErrorPage } from "../templates/paste";
 
 export const viewRoutes = new Elysia()
   .use(html())

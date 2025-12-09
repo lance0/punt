@@ -1,5 +1,5 @@
 import { Elysia } from "elysia";
-import { getDb } from "../lib/db.ts";
+import { getDb } from "../lib/db";
 
 export const healthRoutes = new Elysia().get("/healthz", async ({ set }) => {
   try {
