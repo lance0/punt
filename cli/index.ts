@@ -4,7 +4,7 @@ import { homedir } from "os";
 import { join } from "path";
 import { mkdir } from "fs/promises";
 
-const VERSION = "0.2.0";
+const VERSION = "0.3.0";
 const API_URL = process.env.PUNT_API_URL ?? "https://punt.sh";
 const CONFIG_DIR = join(homedir(), ".config", "punt");
 const TOKEN_FILE = join(CONFIG_DIR, "token");
@@ -35,8 +35,10 @@ function printHelp() {
   console.log(LOGO);
   console.log(`${c.bold}USAGE${c.reset}`);
   console.log(`  ${c.cyan}command${c.reset} | ${c.green}punt${c.reset}              Punt your output to the cloud`);
-  console.log(`  ${c.green}punt${c.reset} ${c.yellow}--ttl 1h${c.reset}              Set expiry (default: 24h, max: 7d)`);
-  console.log(`  ${c.green}punt${c.reset} ${c.yellow}--show${c.reset} ${c.dim}<id>${c.reset}           View a paste in terminal`);
+  console.log(`  ${c.green}punt${c.reset} ${c.yellow}--ttl 1h${c.reset}              Set expiry (default: 24h)`);
+  console.log(`  ${c.green}punt${c.reset} ${c.yellow}--burn${c.reset}                Delete after first view`);
+  console.log(`  ${c.green}punt${c.reset} ${c.yellow}--private${c.reset}             Require key to view`);
+  console.log(`  ${c.green}punt${c.reset} ${c.yellow}--show${c.reset} ${c.dim}<id>${c.reset}           Open paste in browser`);
   console.log(`  ${c.green}punt${c.reset} ${c.yellow}--cat${c.reset} ${c.dim}<url>${c.reset}           Fetch raw paste content`);
   console.log(`  ${c.green}punt${c.reset} ${c.yellow}--delete${c.reset} ${c.dim}<id> <key>${c.reset}   Delete a paste`);
   console.log();
@@ -46,7 +48,9 @@ function printHelp() {
   console.log(`  ${c.green}punt${c.reset} ${c.yellow}whoami${c.reset}             Show current user info`);
   console.log();
   console.log(`${c.bold}OPTIONS${c.reset}`);
-  console.log(`  ${c.yellow}--ttl${c.reset} ${c.dim}<duration>${c.reset}    Expiry time (e.g., 30m, 2h, 1d)`);
+  console.log(`  ${c.yellow}--ttl${c.reset} ${c.dim}<duration>${c.reset}    Expiry time (e.g., 30m, 2h, 7d, 30d)`);
+  console.log(`  ${c.yellow}--burn${c.reset}             Burn after read (auto-delete on view)`);
+  console.log(`  ${c.yellow}--private${c.reset}          Private paste (generates view key)`);
   console.log(`  ${c.yellow}--show${c.reset} ${c.dim}<id>${c.reset}         Open paste in browser`);
   console.log(`  ${c.yellow}--cat${c.reset} ${c.dim}<url|id>${c.reset}      Print raw paste to stdout`);
   console.log(`  ${c.yellow}--delete${c.reset} ${c.dim}<id> <key>${c.reset} Delete paste with delete key`);
@@ -57,8 +61,11 @@ function printHelp() {
   console.log(`  ${c.dim}# Share your test output${c.reset}`);
   console.log(`  ${c.cyan}npm test${c.reset} 2>&1 | ${c.green}punt${c.reset}`);
   console.log();
-  console.log(`  ${c.dim}# Share docker logs with 1 hour expiry${c.reset}`);
-  console.log(`  ${c.cyan}docker logs myapp${c.reset} | ${c.green}punt${c.reset} ${c.yellow}--ttl 1h${c.reset}`);
+  console.log(`  ${c.dim}# Self-destructing paste${c.reset}`);
+  console.log(`  ${c.cyan}cat secret.txt${c.reset} | ${c.green}punt${c.reset} ${c.yellow}--burn${c.reset}`);
+  console.log();
+  console.log(`  ${c.dim}# Private paste with view key${c.reset}`);
+  console.log(`  ${c.cyan}echo "secret"${c.reset} | ${c.green}punt${c.reset} ${c.yellow}--private${c.reset}`);
   console.log();
   console.log(`  ${c.dim}# Grab a paste${c.reset}`);
   console.log(`  ${c.green}punt${c.reset} ${c.yellow}--cat${c.reset} abc123`);
@@ -298,7 +305,13 @@ async function readStdin(): Promise<string> {
   return Buffer.concat(chunks).toString("utf-8");
 }
 
-async function createPaste(content: string, ttl?: string): Promise<void> {
+interface CreatePasteOptions {
+  ttl?: string;
+  burn?: boolean;
+  private?: boolean;
+}
+
+async function createPaste(content: string, options: CreatePasteOptions = {}): Promise<void> {
   if (!content.trim()) {
     printError("Nothing to punt! Pipe some content to me.");
     process.exit(1);
@@ -310,14 +323,24 @@ async function createPaste(content: string, ttl?: string): Promise<void> {
     process.exit(1);
   }
 
-  const spin = spinner("Punting...");
+  const flags = [];
+  if (options.burn) flags.push("🔥 burn");
+  if (options.private) flags.push("🔒 private");
+  const spinText = flags.length > 0 ? `Punting (${flags.join(", ")})...` : "Punting...";
+  const spin = spinner(spinText);
 
   try {
     const headers: Record<string, string> = {
       "Content-Type": "text/plain",
     };
-    if (ttl) {
-      headers["X-TTL"] = ttl;
+    if (options.ttl) {
+      headers["X-TTL"] = options.ttl;
+    }
+    if (options.burn) {
+      headers["X-Burn-After-Read"] = "1";
+    }
+    if (options.private) {
+      headers["X-Private"] = "1";
     }
 
     // Include auth token if logged in
@@ -339,21 +362,35 @@ async function createPaste(content: string, ttl?: string): Promise<void> {
       process.exit(1);
     }
 
-    const url = await response.text();
+    const responseText = await response.text();
     const deleteKey = response.headers.get("X-Delete-Key") ?? "unknown";
+    const pasteId = response.headers.get("X-Paste-Id") ?? "";
     const ttlWarning = response.headers.get("X-TTL-Warning");
+
+    // Extract URL from response or construct from paste ID
+    let url = `${API_URL}/${pasteId}`;
+    const urlMatch = responseText.match(/URL\s+(https?:\/\/[^\s]+)/);
+    if (urlMatch) {
+      url = urlMatch[1]!;
+    }
 
     // Calculate expiry display
     let expiresIn = "24h";
-    if (ttl) {
-      expiresIn = ttl;
+    if (options.ttl) {
+      expiresIn = options.ttl;
       if (ttlWarning) {
         expiresIn += ` (${ttlWarning})`;
       }
     }
+    if (options.burn) {
+      expiresIn += " 🔥";
+    }
+    if (options.private) {
+      expiresIn += " 🔒";
+    }
 
     spin.stop(true);
-    printSuccess(url.trim(), deleteKey, expiresIn);
+    printSuccess(url, deleteKey, expiresIn);
   } catch (err) {
     spin.stop(false);
     printError(`Failed to connect: ${err instanceof Error ? err.message : "Unknown error"}`);
@@ -506,16 +543,28 @@ if (Bun.stdin.stream().locked || process.stdin.isTTY) {
   process.exit(0);
 }
 
+// Parse options
+const options: CreatePasteOptions = {};
+
 // --ttl <duration>
-let ttl: string | undefined;
 const ttlIndex = args.indexOf("--ttl");
 if (ttlIndex !== -1) {
-  ttl = args[ttlIndex + 1];
-  if (!ttl) {
+  options.ttl = args[ttlIndex + 1];
+  if (!options.ttl) {
     printError("--ttl requires a duration (e.g., 1h, 30m, 2d)");
     process.exit(1);
   }
 }
 
+// --burn
+if (args.includes("--burn")) {
+  options.burn = true;
+}
+
+// --private
+if (args.includes("--private")) {
+  options.private = true;
+}
+
 const content = await readStdin();
-await createPaste(content, ttl);
+await createPaste(content, options);

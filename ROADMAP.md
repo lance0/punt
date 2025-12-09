@@ -24,6 +24,8 @@
 - [x] Show paste: `punt --show <id>`
 - [x] Fetch raw content: `punt --cat <url>`
 - [x] Delete paste: `punt --delete <id> <key>`
+- [x] Burn after read: `punt --burn`
+- [x] Private pastes: `punt --private`
 - [ ] npm package: `npm install -g punt-cli`
 - [ ] Homebrew formula
 
