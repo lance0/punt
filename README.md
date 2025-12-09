@@ -111,7 +111,7 @@ See [punt.sh/docs](https://punt.sh/docs) for full API documentation.
 | GET | `/:id` | View paste (HTML) |
 | GET | `/:id/raw` | Raw content |
 | DELETE | `/api/paste/:id/:key` | Delete paste |
-| GET | `/api/docs` | OpenAPI documentation |
+| GET | `/swagger` | OpenAPI documentation |
 
 ### Headers
 

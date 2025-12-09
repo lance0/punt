@@ -80,7 +80,7 @@ const app = new Elysia({
   .use(html())
   // OpenAPI documentation
   .use(swagger({
-    path: "/api/docs",
+    path: "/swagger",
     documentation: {
       info: {
         title: "punt.sh API",
