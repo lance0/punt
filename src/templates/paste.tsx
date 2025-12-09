@@ -353,6 +353,7 @@ export function renderHomePage(user?: HomePageUser): string {
       punt.sh
     </a>
     <nav class="nav-links">
+      <a href="/docs" class="nav-link docs-link">Docs</a>
       ${user ? `
         <a href="/me" class="nav-link user-link">
           ${user.image ? `<img src="${escapeHtml(user.image)}" alt="" class="nav-avatar">` : ""}
@@ -384,8 +385,8 @@ export function renderHomePage(user?: HomePageUser): string {
         </div>
       </div>
       <div class="usage-content" data-mode="cli">
-        <pre class="usage-code"><code><span class="comment"># Install the CLI (requires Bun)</span>
-bun install -g punt-cli
+        <pre class="usage-code"><code><span class="comment"># Install the CLI</span>
+npm install -g @lance0/punt
 
 <span class="comment"># Pipe any command output</span>
 command | punt
@@ -555,6 +556,17 @@ function getNavStyles(): string {
 
     .user-link {
       color: #a6e3a1;
+    }
+
+    .docs-link {
+      background: transparent;
+      border-color: transparent;
+      color: #6c7086;
+    }
+
+    .docs-link:hover {
+      background: transparent;
+      color: #cdd6f4;
     }
 
     /* Keep header horizontal when nav-links present (homepage) */

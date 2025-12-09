@@ -26,7 +26,7 @@
 - [x] Delete paste: `punt --delete <id> <key>`
 - [x] Burn after read: `punt --burn`
 - [x] Private pastes: `punt --private`
-- [ ] npm package: `npm install -g punt-cli`
+- [ ] npm package: `npm install -g @lance0/punt`
 - [ ] Homebrew formula
 
 ## Phase 2.5: UI Polish (Complete)

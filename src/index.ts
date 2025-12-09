@@ -9,6 +9,7 @@ import { dashboardRoutes } from "./routes/dashboard";
 import { cliAuthRoutes } from "./routes/cli-auth";
 import { userRoutes } from "./routes/user";
 import { renderHomePage } from "./templates/paste";
+import { renderDocsPage } from "./templates/docs";
 import { logger } from "./lib/logger";
 import { auth } from "./lib/auth";
 
@@ -93,6 +94,11 @@ const app = new Elysia({
     // Check if user is logged in
     const session = await auth.api.getSession({ headers: request.headers });
     return renderHomePage(session?.user);
+  })
+  // Docs page
+  .get("/docs", async ({ request }) => {
+    const session = await auth.api.getSession({ headers: request.headers });
+    return renderDocsPage({ user: session?.user });
   })
   // View routes last (catch-all for /:id)
   .use(viewRoutes);
