@@ -39,26 +39,34 @@ export async function getAuth() {
   return _auth;
 }
 
-// For backwards compatibility - but now async
+// Create auth instance synchronously but defer the heavy initialization
+let _authPromise: Promise<ReturnType<typeof betterAuth>> | null = null;
+
+function getAuthPromise() {
+  if (!_authPromise) {
+    _authPromise = createAuth();
+  }
+  return _authPromise;
+}
+
+// For backwards compatibility - but now with deferred initialization
 export const auth = {
   get handler() {
     // This needs to return a handler that initializes on first call
     return async (request: Request) => {
-      const authInstance = await getAuth();
+      const authInstance = await getAuthPromise();
       return authInstance.handler(request);
     };
   },
-  get api() {
-    // Return a proxy that handles async initialization
-    return new Proxy({} as ReturnType<typeof betterAuth>["api"], {
-      get(_, prop) {
-        return async (...args: unknown[]) => {
-          const authInstance = await getAuth();
-          // @ts-ignore
-          return authInstance.api[prop](...args);
-        };
-      },
-    });
+  api: {
+    async getSession(options: { headers: Headers }) {
+      const authInstance = await getAuthPromise();
+      return authInstance.api.getSession(options);
+    },
+    async listUserAccounts(options: { headers: Headers }) {
+      const authInstance = await getAuthPromise();
+      return authInstance.api.listUserAccounts(options);
+    },
   },
 };
 
