@@ -1,5 +1,6 @@
 import { Elysia } from "elysia";
 import { html } from "@elysiajs/html";
+import { swagger } from "@elysiajs/swagger";
 import { pasteRoutes } from "./routes/paste";
 import { viewRoutes } from "./routes/view";
 import { healthRoutes } from "./routes/health";
@@ -77,6 +78,22 @@ const app = new Elysia({
   })
   // Use HTML plugin
   .use(html())
+  // OpenAPI documentation
+  .use(swagger({
+    path: "/api/docs",
+    documentation: {
+      info: {
+        title: "punt.sh API",
+        version: "0.6.2",
+        description: "Share terminal output instantly - API documentation",
+      },
+      tags: [
+        { name: "paste", description: "Paste operations" },
+        { name: "auth", description: "Authentication" },
+        { name: "health", description: "Health checks" },
+      ],
+    },
+  }))
   // BetterAuth handler - use all() to catch all auth routes
   .all("/api/auth/*", async ({ request }) => {
     return auth.handler(request);
