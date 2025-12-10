@@ -151,4 +151,22 @@ try {
   }
 }
 
+// Add creator_ip column to pastes for admin tracking
+try {
+  await client.execute(`ALTER TABLE pastes ADD COLUMN creator_ip TEXT`);
+  console.log("Added creator_ip column to pastes table");
+} catch (e) {
+  // Column likely already exists
+  if (!String(e).includes("duplicate column")) {
+    console.log("creator_ip column already exists or error:", e);
+  }
+}
+
+// Create index on creator_ip for efficient lookups
+try {
+  await client.execute(`CREATE INDEX IF NOT EXISTS idx_pastes_creator_ip ON pastes(creator_ip)`);
+} catch (e) {
+  // Ignore errors
+}
+
 console.log("Database schema created successfully!");

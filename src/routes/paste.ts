@@ -123,6 +123,7 @@ export const pasteRoutes = new Elysia({ prefix: "/api", detail: { tags: ["paste"
         viewKey,
         userId: user?.id,
         language,
+        creatorIp: ip,
       });
 
       // Increment rate limit counter

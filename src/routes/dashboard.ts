@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
 import { html } from "@elysiajs/html";
 import { auth, isAdmin } from "../lib/auth";
-import { getAdminStats, getReports, resolveReport, deletePasteById } from "../lib/db";
+import { getAdminStats, getReports, resolveReport, deletePasteById, getRecentPastesByIp } from "../lib/db";
 import { renderDashboardPage, renderLoginPage } from "../templates/dashboard";
 
 export const dashboardRoutes = new Elysia()
@@ -32,7 +32,7 @@ export const dashboardRoutes = new Elysia()
   })
 
   // Dashboard page
-  .get("/dashboard", async ({ request, set }) => {
+  .get("/dashboard", async ({ request, set, query }) => {
     const session = await auth.api.getSession({ headers: request.headers });
 
     if (!session) {
@@ -63,15 +63,24 @@ export const dashboardRoutes = new Elysia()
 </html>`;
     }
 
+    // Get IP filter from query params
+    const ipFilter = (query as { ip?: string })?.ip?.trim() || "";
+
     const [stats, reports] = await Promise.all([
       getAdminStats(),
       getReports(true),
     ]);
 
+    // If filtering by IP, override recentPastes
+    if (ipFilter) {
+      stats.recentPastes = await getRecentPastesByIp(ipFilter);
+    }
+
     return renderDashboardPage({
       user: session.user,
       stats,
       reports,
+      ipFilter,
     });
   })
 

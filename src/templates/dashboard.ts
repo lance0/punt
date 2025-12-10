@@ -5,6 +5,7 @@ interface DashboardProps {
   user: { name: string; email: string; image?: string | null };
   stats: AdminStats;
   reports: Report[];
+  ipFilter?: string;
 }
 
 export function renderLoginPage(): string {
@@ -82,7 +83,7 @@ export function renderLoginPage(): string {
 </html>`;
 }
 
-export function renderDashboardPage({ user, stats, reports }: DashboardProps): string {
+export function renderDashboardPage({ user, stats, reports, ipFilter = "" }: DashboardProps): string {
   const formatDate = (ts: number) => new Date(ts * 1000).toLocaleString();
 
   return `<!DOCTYPE html>
@@ -193,7 +194,91 @@ export function renderDashboardPage({ user, stats, reports }: DashboardProps): s
     .top-ips li:last-child { border-bottom: none; }
     .ip { color: #6c7086; }
     .count { color: #f9e2af; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .top-users {
+      background: #181825;
+      border: 1px solid #313244;
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .top-users li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid #313244;
+      font-size: 13px;
+    }
+    .top-users li:last-child { border-bottom: none; }
+    .user-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #313244;
+    }
+    .user-name { color: #cdd6f4; flex: 1; }
+    .recent-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #181825;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #313244;
+    }
+    .recent-table th, .recent-table td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid #313244;
+    }
+    .recent-table th {
+      background: #11111b;
+      color: #89b4fa;
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+    .recent-table tr:last-child td { border-bottom: none; }
+    .recent-table td { font-size: 12px; }
+    .badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      margin-left: 4px;
+    }
+    .badge-burn { background: #f38ba8; color: #1e1e2e; }
+    .badge-private { background: #cba6f7; color: #1e1e2e; }
+    .badge-lang { background: #89b4fa; color: #1e1e2e; }
+    .search-form {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .search-input {
+      flex: 1;
+      padding: 8px 12px;
+      background: #181825;
+      border: 1px solid #313244;
+      border-radius: 6px;
+      color: #cdd6f4;
+      font-family: inherit;
+      font-size: 13px;
+    }
+    .search-input:focus { outline: none; border-color: #89b4fa; }
+    .search-btn {
+      padding: 8px 16px;
+      background: #89b4fa;
+      color: #1e1e2e;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+    }
+    .search-btn:hover { opacity: 0.9; }
+    .clear-link { color: #6c7086; font-size: 12px; margin-left: 8px; }
     @media (max-width: 768px) {
+      .two-col { grid-template-columns: 1fr; }
       main { padding: 16px; }
       h1 { font-size: 20px; }
       .stat-card { padding: 16px; }
@@ -242,15 +327,70 @@ export function renderDashboardPage({ user, stats, reports }: DashboardProps): s
       </div>
     </div>
 
-    <h2>Top IPs</h2>
-    <ul class="top-ips">
-      ${stats.topIps.length === 0 ? '<li class="empty">No data</li>' : stats.topIps.map(ip => `
-        <li>
-          <span class="ip">${ip.ip}</span>
-          <span class="count">${ip.count} pastes</span>
-        </li>
-      `).join("")}
-    </ul>
+    <div class="two-col">
+      <div>
+        <h2>Top Anonymous IPs</h2>
+        <ul class="top-ips">
+          ${stats.topIps.length === 0 ? '<li class="empty">No anonymous activity today</li>' : stats.topIps.map(ip => `
+            <li>
+              <span class="ip">${escapeHtml(ip.ip)}</span>
+              <span class="count">${ip.count} pastes</span>
+            </li>
+          `).join("")}
+        </ul>
+      </div>
+      <div>
+        <h2>Top Users</h2>
+        <ul class="top-users">
+          ${stats.topUsers.length === 0 ? '<li class="empty">No authenticated user activity</li>' : stats.topUsers.map(u => `
+            <li>
+              ${u.image ? `<img src="${escapeHtml(u.image)}" class="user-avatar" alt="">` : '<span class="user-avatar"></span>'}
+              <span class="user-name">${escapeHtml(u.name)}</span>
+              <span class="count">${u.count} pastes</span>
+            </li>
+          `).join("")}
+        </ul>
+      </div>
+    </div>
+
+    <h2>Recent Pastes${ipFilter ? ` <span style="color:#6c7086;font-size:14px;">(filtered by IP: ${escapeHtml(ipFilter)})</span>` : ''}</h2>
+    <form class="search-form" method="GET" action="/dashboard">
+      <input type="text" name="ip" class="search-input" placeholder="Filter by IP address..." value="${escapeHtml(ipFilter)}">
+      <button type="submit" class="search-btn">Search</button>
+      ${ipFilter ? '<a href="/dashboard" class="clear-link">Clear filter</a>' : ''}
+    </form>
+    ${stats.recentPastes.length === 0 ? `
+      <div class="empty">No pastes yet</div>
+    ` : `
+      <table class="recent-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Created</th>
+            <th>Views</th>
+            <th>Creator</th>
+            <th>IP</th>
+            <th>Flags</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${stats.recentPastes.map(p => `
+            <tr>
+              <td><a href="/${p.id}" target="_blank" class="paste-link">${p.id}</a></td>
+              <td>${formatDate(p.created_at)}</td>
+              <td>${p.views}</td>
+              <td>${p.user_name ? escapeHtml(p.user_name) : '<span style="color:#6c7086">Anonymous</span>'}</td>
+              <td style="color:#6c7086">${p.creator_ip ? escapeHtml(p.creator_ip) : '-'}</td>
+              <td>
+                ${p.burn_after_read ? '<span class="badge badge-burn">burn</span>' : ''}
+                ${p.is_private ? '<span class="badge badge-private">private</span>' : ''}
+                ${p.language ? `<span class="badge badge-lang">${escapeHtml(p.language)}</span>` : ''}
+              </td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `}
 
     <h2>Abuse Reports (${reports.length})</h2>
     ${reports.length === 0 ? `
