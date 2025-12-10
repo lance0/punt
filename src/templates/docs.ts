@@ -321,15 +321,16 @@ export function renderDocsPage({ user }: DocsPageProps = {}): string {
 
     <h3>CLI (Recommended)</h3>
     <p>The CLI provides the best experience with colored output, progress indicators, and easy options.</p>
-    <pre><code><span class="comment"># Install globally with npm</span>
-npm install -g @lance0/punt
+    <pre><code><span class="comment"># Install globally</span>
+npm install -g @lance0/punt    <span class="comment"># or: bun install -g @lance0/punt</span>
 
-<span class="comment"># Or with Bun</span>
-bun install -g @lance0/punt
+<span class="comment"># Share a file (auto-detects language for syntax highlighting)</span>
+punt src/index.ts
+punt config.yaml
 
-<span class="comment"># Or run directly without installing</span>
-npx @lance0/punt
-bunx @lance0/punt</code></pre>
+<span class="comment"># Or pipe command output (preserves ANSI colors)</span>
+npm test 2>&1 | punt
+docker logs myapp | punt</code></pre>
 
     <h3>No Installation (curl)</h3>
     <p>Works anywhere with curl - no installation needed.</p>
@@ -404,13 +405,13 @@ kubectl describe pod mypod | punt</code></pre>
     <p>For code snippets (not terminal output), use the <code class="inline-code">--lang</code> flag to enable syntax highlighting with 66 supported languages.</p>
 
     <h4 style="color: #f9e2af; font-size: 14px; margin: 20px 0 12px;">Auto-Detection</h4>
-    <p>When piping files, punt automatically detects the language from the file extension:</p>
-    <pre><code><span class="comment"># Language auto-detected from file extension</span>
-cat src/index.ts | punt          <span class="comment"># Detects TypeScript</span>
-cat script.py | punt             <span class="comment"># Detects Python</span>
-cat config.yaml | punt           <span class="comment"># Detects YAML</span>
+    <p>Pass a file directly and punt auto-detects the language from the extension:</p>
+    <pre><code><span class="comment"># Direct file argument (recommended) - auto-detects language</span>
+punt src/index.ts                <span class="comment"># Detects TypeScript</span>
+punt script.py                   <span class="comment"># Detects Python</span>
+punt config.yaml                 <span class="comment"># Detects YAML</span>
 
-<span class="comment"># For piped stdin without a filename, specify explicitly</span>
+<span class="comment"># Or pipe content - specify language explicitly for stdin</span>
 docker logs myapp | punt <span class="flag">--lang json</span>
 kubectl get pods -o yaml | punt <span class="flag">--lang yaml</span></code></pre>
 
@@ -473,7 +474,11 @@ command | curl -H "X-TTL: 1h" -X POST --data-binary @- ${baseUrl}/api/paste</cod
         </thead>
         <tbody>
           <tr>
-            <td><code>punt</code></td>
+            <td><code>punt &lt;file&gt;</code></td>
+            <td>Create paste from file (auto-detects language)</td>
+          </tr>
+          <tr>
+            <td><code>command | punt</code></td>
             <td>Create paste from stdin</td>
           </tr>
           <tr>
@@ -540,13 +545,18 @@ X-Language: typescript <span class="comment"># Syntax highlighting language</spa
 Authorization: Bearer punt_xxx  <span class="comment"># API token (optional)</span></code></pre>
 
     <h3>Response</h3>
-    <pre><code>{
-  <span class="json-key">"url"</span>: <span class="json-string">"${baseUrl}/abc123"</span>,
-  <span class="json-key">"raw"</span>: <span class="json-string">"${baseUrl}/abc123/raw"</span>,
-  <span class="json-key">"deleteKey"</span>: <span class="json-string">"xyz789abc"</span>,
-  <span class="json-key">"expiresAt"</span>: <span class="json-string">"2024-01-15T12:00:00.000Z"</span>,
-  <span class="json-key">"viewKey"</span>: <span class="json-string">"secret123"</span>  <span class="comment">// only if --private</span>
-}</code></pre>
+    <pre><code>🏈 Punted!
+
+   URL  ${baseUrl}/abc123
+   Raw  ${baseUrl}/abc123/raw
+   Expires in 24h
+   Delete key: xyz789abc</code></pre>
+
+    <p>Response headers include:</p>
+    <pre><code>X-Paste-Id: abc123
+X-Delete-Key: xyz789abc
+X-RateLimit-Remaining: 99
+X-Language: typescript  <span class="comment">// if syntax highlighting was used</span></code></pre>
 
     <h3>Get Paste</h3>
     <pre><code>GET /:id          <span class="comment"># HTML view with syntax highlighting</span>
@@ -566,15 +576,14 @@ GET /:id?key=xxx  <span class="comment"># Private paste with view key</span></co
     <pre><code><span class="comment"># Create a paste</span>
 $ echo "Hello, World!" | curl -X POST --data-binary @- ${baseUrl}/api/paste
 
-<span class="comment"># Response:</span>
-{
-  "url": "${baseUrl}/abc123",
-  "raw": "${baseUrl}/abc123/raw",
-  "deleteKey": "xyz789abc",
-  "expiresAt": "2024-01-15T12:00:00.000Z"
-}
+🏈 Punted!
 
-<span class="comment"># Delete the paste</span>
+   URL  ${baseUrl}/abc123
+   Raw  ${baseUrl}/abc123/raw
+   Expires in 24h
+   Delete key: xyz789abc
+
+<span class="comment"># Delete the paste using the delete key</span>
 $ curl -X DELETE ${baseUrl}/api/paste/abc123/xyz789abc</code></pre>
 
     <h2>Rate Limits</h2>
