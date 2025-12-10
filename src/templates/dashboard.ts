@@ -50,6 +50,23 @@ export function renderLoginPage(): string {
     }
     .btn:hover { background: #45475a; transform: translateY(-2px); }
     .btn svg { width: 24px; height: 24px; }
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 16px;
+      text-align: center;
+      color: #6c7086;
+      font-size: 13px;
+      font-family: system-ui, sans-serif;
+    }
+    footer a { color: #89b4fa; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    @media (max-width: 768px) {
+      .login-box { padding: 32px 24px; margin: 16px; }
+      .btn { min-height: 44px; padding: 12px 24px; }
+    }
   </style>
 </head>
 <body>
@@ -64,6 +81,10 @@ export function renderLoginPage(): string {
       Sign in with GitHub
     </a>
   </div>
+
+  <footer>
+    <p>punt.sh • <a href="https://github.com/lance0/punt">GitHub</a></p>
+  </footer>
 </body>
 </html>`;
 }
@@ -103,6 +124,14 @@ export function renderDashboardPage({ user, stats, reports }: DashboardProps): s
       align-items: center;
       gap: 8px;
     }
+    .header-nav { display: flex; gap: 16px; align-items: center; }
+    .header-nav a {
+      color: #6c7086;
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+    .header-nav a:hover { color: #cdd6f4; }
     .user-info {
       display: flex;
       align-items: center;
@@ -210,11 +239,43 @@ export function renderDashboardPage({ user, stats, reports }: DashboardProps): s
     .top-ips li:last-child { border-bottom: none; }
     .ip { color: #6c7086; }
     .count { color: #f9e2af; }
+    footer {
+      padding: 24px;
+      text-align: center;
+      border-top: 1px solid #313244;
+      color: #6c7086;
+      font-size: 13px;
+      margin-top: 32px;
+      font-family: system-ui, sans-serif;
+    }
+    footer a { color: #89b4fa; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    @media (max-width: 768px) {
+      header { flex-wrap: wrap; gap: 12px; padding: 12px 16px; }
+      main { padding: 16px; }
+      h1 { font-size: 20px; }
+      .stat-card { padding: 16px; }
+      .stat-value { font-size: 24px; }
+      .reports-table { font-size: 12px; }
+      .reports-table th, .reports-table td { padding: 8px; }
+      .actions { flex-direction: column; gap: 4px; }
+      .btn { min-height: 44px; padding: 10px 16px; }
+      .header-nav a {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        padding: 0 8px;
+      }
+    }
   </style>
 </head>
 <body>
   <header>
     <a href="/" class="logo">🏈 punt.sh</a>
+    <nav class="header-nav">
+      <a href="/">Home</a>
+      <a href="/docs">Docs</a>
+    </nav>
     <div class="user-info">
       ${user.image ? `<img src="${user.image}" alt="">` : ""}
       <span>${user.name}</span>
@@ -301,6 +362,10 @@ export function renderDashboardPage({ user, stats, reports }: DashboardProps): s
       </table>
     `}
   </main>
+
+  <footer>
+    <p>punt.sh • <a href="https://github.com/lance0/punt">GitHub</a></p>
+  </footer>
 </body>
 </html>`;
 }

@@ -49,6 +49,10 @@ export function renderPastePage(props: PastePageProps): string {
         <span class="logo-icon">🏈</span>
         punt.sh
       </a>
+      <nav class="header-nav">
+        <a href="/">Home</a>
+        <a href="/docs">Docs</a>
+      </nav>
       <span class="paste-id">/${escapeHtml(id)}</span>
     </div>
     <div class="header-right">
@@ -124,7 +128,7 @@ export function renderPastePage(props: PastePageProps): string {
   </main>
 
   <footer>
-    <p>Pastes expire after at most 7 days • <a href="https://github.com/lance0/punt">GitHub</a></p>
+    <p>punt.sh • <a href="https://github.com/lance0/punt">GitHub</a></p>
   </footer>
 
   <!-- Toast notification -->
@@ -224,6 +228,10 @@ export function renderErrorPage(title: string, message: string): string {
       <span class="logo-icon">🏈</span>
       punt.sh
     </a>
+    <nav class="header-nav">
+      <a href="/">Home</a>
+      <a href="/docs">Docs</a>
+    </nav>
   </header>
 
   <main class="error-page">
@@ -234,7 +242,7 @@ export function renderErrorPage(title: string, message: string): string {
   </main>
 
   <footer>
-    <p>Pastes expire after at most 7 days</p>
+    <p>punt.sh • <a href="https://github.com/lance0/punt">GitHub</a></p>
   </footer>
 </body>
 </html>`;
@@ -257,6 +265,10 @@ export function renderPrivateKeyPage(id: string): string {
       <span class="logo-icon">🏈</span>
       punt.sh
     </a>
+    <nav class="header-nav">
+      <a href="/">Home</a>
+      <a href="/docs">Docs</a>
+    </nav>
   </header>
 
   <main class="private-page">
@@ -270,7 +282,7 @@ export function renderPrivateKeyPage(id: string): string {
   </main>
 
   <footer>
-    <p>Pastes expire after at most 7 days</p>
+    <p>punt.sh • <a href="https://github.com/lance0/punt">GitHub</a></p>
   </footer>
 
   <script>
@@ -497,7 +509,7 @@ command | curl -X POST -H "X-TTL: 1h" --data-binary @- ${baseUrl}/api/paste</cod
   </main>
 
   <footer>
-    <p>Pastes expire after at most 7 days • <a href="https://github.com/lance0/punt">GitHub</a></p>
+    <p>punt.sh • <a href="https://github.com/lance0/punt">GitHub</a></p>
   </footer>
 
   <script>
@@ -711,6 +723,22 @@ function getBaseStyles(): string {
 
     .logo-icon {
       font-size: 24px;
+    }
+
+    .header-nav {
+      display: flex;
+      gap: 16px;
+    }
+
+    .header-nav a {
+      color: #6c7086;
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+
+    .header-nav a:hover {
+      color: #cdd6f4;
     }
 
     .paste-id {
@@ -1169,16 +1197,24 @@ function getBaseStyles(): string {
       }
 
       .btn {
-        padding: 8px 12px;
+        padding: 12px 16px;
         font-size: 12px;
         flex: 1;
         min-width: 70px;
+        min-height: 44px;
         justify-content: center;
       }
 
       .btn svg {
-        width: 12px;
-        height: 12px;
+        width: 14px;
+        height: 14px;
+      }
+
+      .header-nav a {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        padding: 0 8px;
       }
 
       .line-numbers {

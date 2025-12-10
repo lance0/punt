@@ -62,9 +62,70 @@ export function renderCliAuthPage(code: string): string {
     }
     .btn:hover { background: #45475a; transform: translateY(-2px); }
     .btn svg { width: 24px; height: 24px; }
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+      background: rgba(17, 17, 27, 0.9);
+      border-bottom: 1px solid #313244;
+    }
+    .header-logo {
+      color: #89b4fa;
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .header-nav { display: flex; gap: 16px; }
+    .header-nav a {
+      color: #6c7086;
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+    .header-nav a:hover { color: #cdd6f4; }
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 16px;
+      text-align: center;
+      color: #6c7086;
+      font-size: 13px;
+      font-family: system-ui, sans-serif;
+    }
+    footer a { color: #89b4fa; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    @media (max-width: 768px) {
+      .auth-box { padding: 32px 24px; margin: 16px; }
+      .code-display { font-size: 14px; }
+      .btn { min-height: 44px; padding: 12px 24px; }
+      header { padding: 12px 16px; }
+      .header-nav a {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+      }
+    }
   </style>
 </head>
 <body>
+  <header>
+    <a href="/" class="header-logo">🏈 punt.sh</a>
+    <nav class="header-nav">
+      <a href="/">Home</a>
+      <a href="/docs">Docs</a>
+    </nav>
+  </header>
+
   <div class="auth-box">
     <div class="logo">🏈</div>
     <h1>Authorize CLI</h1>
@@ -77,6 +138,10 @@ export function renderCliAuthPage(code: string): string {
       Sign in with GitHub
     </a>
   </div>
+
+  <footer>
+    <p>punt.sh • <a href="https://github.com/lance0/punt">GitHub</a></p>
+  </footer>
 </body>
 </html>`;
 }
@@ -166,9 +231,71 @@ export function renderCliAuthorizePage({ code, user }: AuthorizePageProps): stri
       color: #cdd6f4;
     }
     .btn-cancel:hover { background: #45475a; }
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+      background: rgba(17, 17, 27, 0.9);
+      border-bottom: 1px solid #313244;
+    }
+    .header-logo {
+      color: #89b4fa;
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .header-nav { display: flex; gap: 16px; }
+    .header-nav a {
+      color: #6c7086;
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+    .header-nav a:hover { color: #cdd6f4; }
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 16px;
+      text-align: center;
+      color: #6c7086;
+      font-size: 13px;
+      font-family: system-ui, sans-serif;
+    }
+    footer a { color: #89b4fa; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    @media (max-width: 768px) {
+      .auth-box { padding: 32px 24px; margin: 16px; }
+      .code-display { font-size: 14px; }
+      .btn { min-height: 44px; padding: 12px 24px; }
+      header { padding: 12px 16px; }
+      .header-nav a {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+      }
+      .actions { flex-direction: column; }
+    }
   </style>
 </head>
 <body>
+  <header>
+    <a href="/" class="header-logo">🏈 punt.sh</a>
+    <nav class="header-nav">
+      <a href="/">Home</a>
+      <a href="/docs">Docs</a>
+    </nav>
+  </header>
+
   <div class="auth-box">
     <div class="logo">🏈</div>
     <h1>Authorize CLI</h1>
@@ -186,6 +313,10 @@ export function renderCliAuthorizePage({ code, user }: AuthorizePageProps): stri
       <a href="/" class="btn btn-cancel">Cancel</a>
     </div>
   </div>
+
+  <footer>
+    <p>punt.sh • <a href="https://github.com/lance0/punt">GitHub</a></p>
+  </footer>
 </body>
 </html>`;
 }
@@ -225,15 +356,78 @@ export function renderCliSuccessPage(): string {
       border-radius: 4px;
       color: #f9e2af;
     }
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+      background: rgba(17, 17, 27, 0.9);
+      border-bottom: 1px solid #313244;
+    }
+    .header-logo {
+      color: #89b4fa;
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .header-nav { display: flex; gap: 16px; }
+    .header-nav a {
+      color: #6c7086;
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+    .header-nav a:hover { color: #cdd6f4; }
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 16px;
+      text-align: center;
+      color: #6c7086;
+      font-size: 13px;
+      font-family: system-ui, sans-serif;
+    }
+    footer a { color: #89b4fa; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    @media (max-width: 768px) {
+      .success-box { padding: 32px 24px; margin: 16px; }
+      header { padding: 12px 16px; }
+      .header-nav a {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+      }
+    }
   </style>
 </head>
 <body>
+  <header>
+    <a href="/" class="header-logo">🏈 punt.sh</a>
+    <nav class="header-nav">
+      <a href="/">Home</a>
+      <a href="/docs">Docs</a>
+    </nav>
+  </header>
+
   <div class="success-box">
     <div class="check">✓</div>
     <h1>CLI Authorized!</h1>
     <p>You can close this window and return to your terminal.</p>
     <p>Try running <code>punt whoami</code> to verify.</p>
   </div>
+
+  <footer>
+    <p>punt.sh • <a href="https://github.com/lance0/punt">GitHub</a></p>
+  </footer>
 </body>
 </html>`;
 }
@@ -279,15 +473,79 @@ export function renderCliErrorPage(message: string): string {
       transition: all 0.2s;
     }
     .btn:hover { background: #45475a; }
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+      background: rgba(17, 17, 27, 0.9);
+      border-bottom: 1px solid #313244;
+    }
+    .header-logo {
+      color: #89b4fa;
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .header-nav { display: flex; gap: 16px; }
+    .header-nav a {
+      color: #6c7086;
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+    .header-nav a:hover { color: #cdd6f4; }
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 16px;
+      text-align: center;
+      color: #6c7086;
+      font-size: 13px;
+      font-family: system-ui, sans-serif;
+    }
+    footer a { color: #89b4fa; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    @media (max-width: 768px) {
+      .error-box { padding: 32px 24px; margin: 16px; }
+      .btn { min-height: 44px; padding: 12px 24px; }
+      header { padding: 12px 16px; }
+      .header-nav a {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+      }
+    }
   </style>
 </head>
 <body>
+  <header>
+    <a href="/" class="header-logo">🏈 punt.sh</a>
+    <nav class="header-nav">
+      <a href="/">Home</a>
+      <a href="/docs">Docs</a>
+    </nav>
+  </header>
+
   <div class="error-box">
     <div class="x">✕</div>
     <h1>Authorization Failed</h1>
     <p>${escapeHtml(message)}</p>
     <a href="/" class="btn">Return Home</a>
   </div>
+
+  <footer>
+    <p>punt.sh • <a href="https://github.com/lance0/punt">GitHub</a></p>
+  </footer>
 </body>
 </html>`;
 }
