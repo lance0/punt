@@ -19,24 +19,28 @@ bunx @lance0/punt
 ## Usage
 
 ```bash
+# Share a file (auto-detects language from extension)
+punt src/index.ts
+punt script.py --burn
+
 # Pipe any command output
 npm test 2>&1 | punt
 docker logs myapp | punt
 kubectl describe pod mypod | punt
 
 # Set custom expiry
-command | punt --ttl 1h    # 1 hour
-command | punt --ttl 7d    # 7 days
+punt file.ts --ttl 1h    # 1 hour
+command | punt --ttl 7d  # 7 days
 
 # Burn after read (auto-delete after first view)
-cat secret.txt | punt --burn
+punt secret.txt --burn
 
 # Private paste (requires view key)
 echo "secret" | punt --private
 
-# Syntax highlighting for code
-cat src/index.ts | punt --lang typescript
-cat script.py | punt --lang python
+# Syntax highlighting (auto-detected for files, manual for pipes)
+punt src/index.ts              # Auto-detects TypeScript
+cat script.py | punt --lang py # Manual for piped content
 
 # View a paste
 punt --show abc123
@@ -58,11 +62,12 @@ punt logout    # Sign out
 
 ## Features
 
-- ANSI color preservation - terminal output looks exactly as intended
-- Default 24h expiry, configurable up to 7 days (30 days if logged in)
-- Burn after read for sensitive content
-- Private pastes with view keys
-- QR codes for easy mobile sharing
+- **File support** - `punt file.ts` with auto language detection
+- **ANSI colors** - Terminal output looks exactly as intended
+- **Syntax highlighting** - 66 languages, auto-detected from file extension
+- **Flexible expiry** - Default 24h, up to 7 days (30 days if logged in)
+- **Burn after read** - Self-destructing pastes for sensitive content
+- **Private pastes** - Require view key to access
 
 ## Links
 

@@ -4,7 +4,7 @@ import { homedir } from "os";
 import { join } from "path";
 import { mkdir } from "fs/promises";
 
-const VERSION = "0.4.0";
+const VERSION = "0.5.0";
 const API_URL = process.env.PUNT_API_URL ?? "https://punt.sh";
 const CONFIG_DIR = join(homedir(), ".config", "punt");
 const TOKEN_FILE = join(CONFIG_DIR, "token");
@@ -61,6 +61,7 @@ function printHelp() {
   console.log(LOGO);
   console.log(`${c.bold}USAGE${c.reset}`);
   console.log(`  ${c.cyan}command${c.reset} | ${c.green}punt${c.reset}              Punt your output to the cloud`);
+  console.log(`  ${c.green}punt${c.reset} ${c.dim}<file>${c.reset}                 Punt a file (auto-detects language)`);
   console.log(`  ${c.green}punt${c.reset} ${c.yellow}--ttl 1h${c.reset}              Set expiry (default: 24h)`);
   console.log(`  ${c.green}punt${c.reset} ${c.yellow}--burn${c.reset}                Delete after first view`);
   console.log(`  ${c.green}punt${c.reset} ${c.yellow}--private${c.reset}             Require key to view`);
@@ -87,17 +88,17 @@ function printHelp() {
   console.log(`  ${c.yellow}--version${c.reset}, ${c.yellow}-v${c.reset}      Show version`);
   console.log();
   console.log(`${c.bold}EXAMPLES${c.reset}`);
+  console.log(`  ${c.dim}# Share a file (auto-detects language)${c.reset}`);
+  console.log(`  ${c.green}punt${c.reset} src/index.ts`);
+  console.log();
   console.log(`  ${c.dim}# Share your test output${c.reset}`);
   console.log(`  ${c.cyan}npm test${c.reset} 2>&1 | ${c.green}punt${c.reset}`);
   console.log();
   console.log(`  ${c.dim}# Self-destructing paste${c.reset}`);
-  console.log(`  ${c.cyan}cat secret.txt${c.reset} | ${c.green}punt${c.reset} ${c.yellow}--burn${c.reset}`);
+  console.log(`  ${c.green}punt${c.reset} secret.txt ${c.yellow}--burn${c.reset}`);
   console.log();
   console.log(`  ${c.dim}# Private paste with view key${c.reset}`);
   console.log(`  ${c.cyan}echo "secret"${c.reset} | ${c.green}punt${c.reset} ${c.yellow}--private${c.reset}`);
-  console.log();
-  console.log(`  ${c.dim}# Syntax highlighted code${c.reset}`);
-  console.log(`  ${c.cyan}cat src/index.ts${c.reset} | ${c.green}punt${c.reset} ${c.yellow}--lang ts${c.reset}`);
   console.log();
   console.log(`  ${c.dim}# Grab a paste${c.reset}`);
   console.log(`  ${c.green}punt${c.reset} ${c.yellow}--cat${c.reset} abc123`);
@@ -576,14 +577,7 @@ if (deleteIndex !== -1) {
   process.exit(0);
 }
 
-// Default: read stdin and create paste
-// Check if stdin is a TTY (no piped input)
-if (Bun.stdin.stream().locked || process.stdin.isTTY) {
-  printHelp();
-  process.exit(0);
-}
-
-// Parse options
+// Parse options first (needed for both file and stdin modes)
 const options: CreatePasteOptions = {};
 
 // --ttl <duration>
@@ -611,17 +605,51 @@ const langIndex = args.indexOf("--lang") !== -1 ? args.indexOf("--lang") : args.
 if (langIndex !== -1) {
   const langArg = args[langIndex + 1];
   if (!langArg) {
-    printError("--lang requires a language (e.g., ts, python, go) or 'auto'");
+    printError("--lang requires a language (e.g., ts, python, go)");
     process.exit(1);
   }
-  if (langArg.toLowerCase() === "auto") {
-    // Try to detect from stdin filename (works with shell redirects like < file.ts)
-    // Note: This is limited - auto detection mainly works when user specifies filename
-    console.error(`${c.dim}Tip: --lang auto works best with explicit files. Use --lang <ext> for piped content.${c.reset}`);
-  } else {
-    options.lang = langArg.toLowerCase();
-  }
+  options.lang = langArg.toLowerCase();
 }
 
-const content = await readStdin();
-await createPaste(content, options);
+// Check for file argument (non-flag argument that's not a value for a flag)
+const flagsWithValues = new Set(["--ttl", "--lang", "--syntax", "--cat", "--show", "--delete"]);
+const fileArg = args.find((arg, i) => {
+  if (arg.startsWith("-")) return false;
+  // Check if this arg is a value for a previous flag
+  const prevArg = args[i - 1];
+  if (prevArg && flagsWithValues.has(prevArg)) return false;
+  // Check if it's a subcommand
+  if (["login", "logout", "whoami"].includes(arg)) return false;
+  return true;
+});
+
+if (fileArg) {
+  // File mode: read file and auto-detect language
+  const file = Bun.file(fileArg);
+  if (!(await file.exists())) {
+    printError(`File not found: ${fileArg}`);
+    process.exit(1);
+  }
+
+  const content = await file.text();
+
+  // Auto-detect language from filename if not explicitly set
+  if (!options.lang) {
+    const detectedLang = detectLanguageFromFilename(fileArg);
+    if (detectedLang) {
+      options.lang = detectedLang;
+    }
+  }
+
+  await createPaste(content, options);
+} else {
+  // Stdin mode: read from pipe
+  // Check if stdin is a TTY (no piped input)
+  if (process.stdin.isTTY) {
+    printHelp();
+    process.exit(0);
+  }
+
+  const content = await readStdin();
+  await createPaste(content, options);
+}
