@@ -345,7 +345,7 @@ export function renderAboutPage({ user }: AboutPageProps = {}): string {
         </div>
         <div class="feature-card">
           <h3><span class="icon">📝</span> Syntax Highlighting</h3>
-          <p>100+ programming languages supported with beautiful Catppuccin Mocha theme. Use <code>--lang</code> for code snippets instead of terminal output.</p>
+          <p>66 programming languages supported with beautiful Catppuccin Mocha theme. Use <code>--lang</code> for code snippets instead of terminal output.</p>
         </div>
         <div class="feature-card">
           <h3><span class="icon">🔥</span> Burn After Read</h3>

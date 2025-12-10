@@ -379,6 +379,9 @@ export function renderHomePage(user?: HomePageUser): string {
         <pre class="usage-code"><code><span class="comment"># Install the CLI</span>
 npm install -g @lance0/punt
 
+<span class="comment"># Share a file (auto-detects language)</span>
+punt src/index.ts
+
 <span class="comment"># Pipe any command output</span>
 command | punt
 
@@ -389,7 +392,7 @@ command | punt --ttl 1h --burn</code></pre>
         <pre class="usage-code"><code><span class="comment"># Pipe any command output</span>
 command | curl -X POST --data-binary @- ${baseUrl}/api/paste
 
-<span class="comment"># With custom TTL (default: 24h, max: 7d)</span>
+<span class="comment"># With custom TTL (default: 24h, max: 7d anon / 30d signed in)</span>
 command | curl -X POST -H "X-TTL: 1h" --data-binary @- ${baseUrl}/api/paste</code></pre>
       </div>
     </div>
@@ -397,6 +400,12 @@ command | curl -X POST -H "X-TTL: 1h" --data-binary @- ${baseUrl}/api/paste</cod
     <div class="examples-section">
       <h2>Examples</h2>
       <div class="examples-grid examples-content" data-mode="cli">
+        <div class="example-card">
+          <div class="example-icon">📝</div>
+          <div class="example-content">
+            <code>punt src/index.ts</code>
+          </div>
+        </div>
         <div class="example-card">
           <div class="example-icon">🐳</div>
           <div class="example-content">
@@ -407,12 +416,6 @@ command | curl -X POST -H "X-TTL: 1h" --data-binary @- ${baseUrl}/api/paste</cod
           <div class="example-icon">🔥</div>
           <div class="example-content">
             <code>cat secret.txt | punt --burn</code>
-          </div>
-        </div>
-        <div class="example-card">
-          <div class="example-icon">🧪</div>
-          <div class="example-content">
-            <code>npm test 2>&1 | punt --ttl 1h</code>
           </div>
         </div>
       </div>
