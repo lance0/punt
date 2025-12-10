@@ -527,7 +527,7 @@ X-RateLimit-Reset: 1705315200</code></pre>
 
     <div class="faq-item">
       <div class="faq-q">How do I report abuse?</div>
-      <div class="faq-a">Report abusive content by emailing the paste URL to <a href="mailto:abuse@punt.sh">abuse@punt.sh</a> or opening an issue on <a href="https://github.com/lance0/punt">GitHub</a>.</div>
+      <div class="faq-a">Report abusive content by emailing the paste URL to <a href="mailto:lance@lance0.com">lance@lance0.com</a> or opening an issue on <a href="https://github.com/lance0/punt">GitHub</a>.</div>
     </div>
 
     <div class="faq-item">
