@@ -160,9 +160,13 @@ bun run dev
 | `TURSO_DATABASE_URL` | Turso database URL |
 | `TURSO_AUTH_TOKEN` | Turso auth token |
 | `BASE_URL` | Public URL (default: https://punt.sh) |
+| `PORT` | Server port (default: 3000) |
 | `GITHUB_CLIENT_ID` | GitHub OAuth client ID |
 | `GITHUB_CLIENT_SECRET` | GitHub OAuth secret |
 | `BETTER_AUTH_SECRET` | Session signing secret |
+| `ADMIN_GITHUB_IDS` | Comma-separated GitHub user IDs for admin access |
+| `ADMIN_TOKEN` | Token for admin API endpoints |
+| `CRON_SECRET` | Secret for Vercel cron job authentication |
 
 ### Deployment
 
