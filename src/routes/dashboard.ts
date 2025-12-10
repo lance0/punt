@@ -3,6 +3,7 @@ import { html } from "@elysiajs/html";
 import { auth, isAdmin } from "../lib/auth";
 import { getAdminStats, getReports, resolveReport, deletePasteById, getRecentPastesByIp } from "../lib/db";
 import { renderDashboardPage, renderLoginPage } from "../templates/dashboard";
+import { validateOrigin, validateCallbackUrl } from "../lib/request";
 
 export const dashboardRoutes = new Elysia()
   .use(html())
@@ -10,7 +11,9 @@ export const dashboardRoutes = new Elysia()
   // Simple GET redirect for GitHub login (no JS required)
   .get("/login/github", async ({ query }) => {
     // Support callbackURL parameter for redirecting after login
-    const callbackURL = (query as { callbackURL?: string })?.callbackURL || "/dashboard";
+    // Validate to prevent open redirect attacks
+    const rawCallbackURL = (query as { callbackURL?: string })?.callbackURL;
+    const callbackURL = validateCallbackUrl(rawCallbackURL, "/dashboard");
 
     // Get the response with headers (includes state cookie)
     const result = await auth.api.signInSocial({
@@ -86,6 +89,12 @@ export const dashboardRoutes = new Elysia()
 
   // Handle report actions via form POST
   .post("/dashboard/resolve/:id", async ({ request, params, set }) => {
+    // CSRF protection for cookie-based auth
+    if (!validateOrigin(request)) {
+      set.status = 403;
+      return "Invalid request origin";
+    }
+
     const session = await auth.api.getSession({ headers: request.headers });
     if (!session) {
       set.redirect = "/dashboard";
@@ -106,6 +115,12 @@ export const dashboardRoutes = new Elysia()
   })
 
   .post("/dashboard/delete-paste/:id", async ({ request, params, set }) => {
+    // CSRF protection for cookie-based auth
+    if (!validateOrigin(request)) {
+      set.status = 403;
+      return "Invalid request origin";
+    }
+
     const session = await auth.api.getSession({ headers: request.headers });
     if (!session) {
       set.redirect = "/dashboard";

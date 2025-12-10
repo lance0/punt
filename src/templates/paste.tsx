@@ -11,6 +11,7 @@ interface PastePageProps {
   burnAfterRead: boolean;
   isPrivate: boolean;
   language?: string | null; // If set, content has syntax highlighting
+  viewKey?: string; // For private pastes, needed to access raw content
 }
 
 function formatSize(bytes: number): string {
@@ -20,13 +21,15 @@ function formatSize(bytes: number): string {
 }
 
 export function renderPastePage(props: PastePageProps): string {
-  const { id, content, rawContent, expiresIn, views, burnAfterRead, isPrivate, language } = props;
+  const { id, content, rawContent, expiresIn, views, burnAfterRead, isPrivate, language, viewKey } = props;
   // Use raw content for line count to be consistent
   const lines = rawContent.split("\n");
   const size = new TextEncoder().encode(rawContent).length;
   const baseUrl = process.env.BASE_URL ?? "https://punt.sh";
   // Use Shiki CSS for syntax highlighted content, ANSI CSS otherwise
   const contentCss = language ? getShikiCss() : getAnsiCss();
+  // Build URL suffix for private pastes
+  const keyParam = viewKey ? `?key=${encodeURIComponent(viewKey)}` : "";
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -88,7 +91,7 @@ export function renderPastePage(props: PastePageProps): string {
         </svg>
         Download
       </button>
-      <a href="/${escapeHtml(id)}/raw" class="btn">
+      <a href="/${escapeHtml(id)}/raw${keyParam}" class="btn">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
           <polyline points="14 2 14 8 20 8"></polyline>
@@ -113,7 +116,7 @@ export function renderPastePage(props: PastePageProps): string {
       <div class="qr-content" onclick="event.stopPropagation()">
         <h3>Scan to open</h3>
         <div id="qr-code"></div>
-        <p class="qr-url">${baseUrl}/${escapeHtml(id)}</p>
+        <p class="qr-url">${baseUrl}/${escapeHtml(id)}${keyParam}</p>
       </div>
     </div>
 
@@ -136,6 +139,7 @@ export function renderPastePage(props: PastePageProps): string {
 
   <script>
     const pasteId = '${escapeHtml(id)}';
+    const keyParam = '${keyParam}';
 
     function showToast(message, type = 'success') {
       const toast = document.getElementById('toast');
@@ -146,7 +150,7 @@ export function renderPastePage(props: PastePageProps): string {
 
     async function copyContent() {
       try {
-        const response = await fetch('/' + pasteId + '/raw');
+        const response = await fetch('/' + pasteId + '/raw' + keyParam);
         const text = await response.text();
         await navigator.clipboard.writeText(text);
         showToast('Copied to clipboard!', 'success');
@@ -157,7 +161,7 @@ export function renderPastePage(props: PastePageProps): string {
 
     function downloadContent() {
       const link = document.createElement('a');
-      link.href = '/' + pasteId + '/raw';
+      link.href = '/' + pasteId + '/raw' + keyParam;
       link.download = pasteId + '.txt';
       document.body.appendChild(link);
       link.click();
@@ -195,7 +199,7 @@ export function renderPastePage(props: PastePageProps): string {
     }
 
     function generateQR() {
-      const url = '${baseUrl}/${escapeHtml(id)}';
+      const url = '${baseUrl}/${escapeHtml(id)}${keyParam}';
       const size = 200;
       const qrContainer = document.getElementById('qr-code');
       // Use QR Server API for simple QR generation

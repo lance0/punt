@@ -65,6 +65,7 @@ export const viewRoutes = new Elysia()
         burnAfterRead: paste.burn_after_read === 1,
         isPrivate: paste.is_private === 1,
         language: paste.language,
+        viewKey: paste.is_private === 1 ? viewKey : undefined,
       });
     },
     {

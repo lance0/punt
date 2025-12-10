@@ -10,6 +10,7 @@ import {
 } from "../lib/db";
 import { MAX_TTL_AUTHENTICATED } from "../lib/time";
 import { renderUserDashboard, renderNewTokenPage } from "../templates/user-dashboard";
+import { validateOrigin } from "../lib/request";
 
 // Middleware to extract and validate API token
 async function getAuthUser(request: Request) {
@@ -86,10 +87,12 @@ export const userRoutes = new Elysia()
     async ({ request, params, body, set }) => {
       // Support both session and API token auth
       let userId: string | null = null;
+      let isSessionAuth = false;
 
       const sessionUser = await getSessionUser(request);
       if (sessionUser) {
         userId = sessionUser.id;
+        isSessionAuth = true;
       } else {
         const apiUser = await getAuthUser(request);
         if (apiUser) {
@@ -100,6 +103,12 @@ export const userRoutes = new Elysia()
       if (!userId) {
         set.status = 401;
         return { error: "Unauthorized" };
+      }
+
+      // CSRF protection for cookie-based auth
+      if (isSessionAuth && !validateOrigin(request)) {
+        set.status = 403;
+        return { error: "Invalid request origin" };
       }
 
       const method = (body as { _method?: string })?._method;
@@ -150,10 +159,12 @@ export const userRoutes = new Elysia()
     async ({ request, params, set }) => {
       // Support both session and API token auth
       let userId: string | null = null;
+      let isSessionAuth = false;
 
       const sessionUser = await getSessionUser(request);
       if (sessionUser) {
         userId = sessionUser.id;
+        isSessionAuth = true;
       } else {
         const apiUser = await getAuthUser(request);
         if (apiUser) {
@@ -164,6 +175,12 @@ export const userRoutes = new Elysia()
       if (!userId) {
         set.status = 401;
         return { error: "Unauthorized" };
+      }
+
+      // CSRF protection for cookie-based auth
+      if (isSessionAuth && !validateOrigin(request)) {
+        set.status = 403;
+        return { error: "Invalid request origin" };
       }
 
       // Extend by 7 days (max is 30 days total for authenticated)
@@ -206,10 +223,12 @@ export const userRoutes = new Elysia()
     async ({ request, body, set }) => {
       // Support both session and API token auth
       let userId: string | null = null;
+      let isSessionAuth = false;
 
       const sessionUser = await getSessionUser(request);
       if (sessionUser) {
         userId = sessionUser.id;
+        isSessionAuth = true;
       } else {
         const apiUser = await getAuthUser(request);
         if (apiUser) {
@@ -220,6 +239,12 @@ export const userRoutes = new Elysia()
       if (!userId) {
         set.status = 401;
         return { error: "Unauthorized" };
+      }
+
+      // CSRF protection for cookie-based auth
+      if (isSessionAuth && !validateOrigin(request)) {
+        set.status = 403;
+        return { error: "Invalid request origin" };
       }
 
       const name = (body as { name?: string })?.name?.trim() || "CLI Token";
@@ -240,10 +265,12 @@ export const userRoutes = new Elysia()
     async ({ request, params, body, set }) => {
       // Support both session and API token auth
       let userId: string | null = null;
+      let isSessionAuth = false;
 
       const sessionUser = await getSessionUser(request);
       if (sessionUser) {
         userId = sessionUser.id;
+        isSessionAuth = true;
       } else {
         const apiUser = await getAuthUser(request);
         if (apiUser) {
@@ -254,6 +281,12 @@ export const userRoutes = new Elysia()
       if (!userId) {
         set.status = 401;
         return { error: "Unauthorized" };
+      }
+
+      // CSRF protection for cookie-based auth
+      if (isSessionAuth && !validateOrigin(request)) {
+        set.status = 403;
+        return { error: "Invalid request origin" };
       }
 
       const method = (body as { _method?: string })?._method;

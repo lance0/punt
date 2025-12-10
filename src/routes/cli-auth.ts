@@ -14,18 +14,7 @@ import {
   renderCliErrorPage,
 } from "../templates/cli-auth";
 import { checkCliInitRateLimit, incrementCliInitRateLimit } from "../lib/rate-limit";
-
-function getClientIp(request: Request): string {
-  const forwardedFor = request.headers.get("x-forwarded-for");
-  if (forwardedFor) {
-    return forwardedFor.split(",")[0]!.trim();
-  }
-  const realIp = request.headers.get("x-real-ip");
-  if (realIp) {
-    return realIp;
-  }
-  return "127.0.0.1";
-}
+import { getClientIp, validateOrigin } from "../lib/request";
 
 export const cliAuthRoutes = new Elysia()
   .use(html())
@@ -125,6 +114,12 @@ export const cliAuthRoutes = new Elysia()
   .post(
     "/api/cli/approve",
     async ({ body, request, set }) => {
+      // CSRF protection for cookie-based auth
+      if (!validateOrigin(request)) {
+        set.status = 403;
+        return renderCliErrorPage("Invalid request origin");
+      }
+
       const session = await auth.api.getSession({ headers: request.headers });
       if (!session) {
         set.status = 401;

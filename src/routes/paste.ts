@@ -6,21 +6,10 @@ import { generatePasteId, generateDeleteKey, generateViewKey } from "../lib/id";
 import { logger } from "../lib/logger";
 import { validateApiToken, type User } from "../lib/tokens";
 import { normalizeLanguage, getSupportedLanguagesList } from "../lib/languages";
+import { getClientIp } from "../lib/request";
 
 // 4 MB size limit
 const MAX_BODY_SIZE = 4 * 1024 * 1024;
-
-function getClientIp(request: Request): string {
-  const forwardedFor = request.headers.get("x-forwarded-for");
-  if (forwardedFor) {
-    return forwardedFor.split(",")[0]!.trim();
-  }
-  const realIp = request.headers.get("x-real-ip");
-  if (realIp) {
-    return realIp;
-  }
-  return "127.0.0.1";
-}
 
 // Get authenticated user from Authorization header
 async function getAuthUser(request: Request): Promise<User | null> {
