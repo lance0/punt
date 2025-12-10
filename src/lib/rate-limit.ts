@@ -89,17 +89,6 @@ export async function incrementRateLimit(ip: string): Promise<void> {
   });
 }
 
-export async function cleanupOldRateLimits(): Promise<number> {
-  const db = getDb();
-  const today = new Date().toISOString().split("T")[0];
-
-  const result = await db.execute({
-    sql: `DELETE FROM rate_limits WHERE ip_date NOT LIKE ?`,
-    args: [`%:${today}`],
-  });
-  return result.rowsAffected;
-}
-
 // Per-minute rate limiting for sensitive endpoints
 const CLI_INIT_LIMIT = 10; // 10 device code requests per minute
 const REPORT_LIMIT = 5; // 5 abuse reports per minute

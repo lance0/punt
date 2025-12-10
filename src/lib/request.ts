@@ -1,25 +1,40 @@
 /**
  * Request utilities for secure header handling.
  *
- * SECURITY NOTE: These utilities assume the application runs behind a trusted
- * reverse proxy (e.g., Vercel, Cloudflare). The x-forwarded-for and x-real-ip
- * headers are only trustworthy when set by a trusted proxy. For self-hosted
- * deployments, ensure your proxy is configured correctly and strips any
- * client-provided forwarding headers.
+ * SECURITY NOTE: IP extraction from headers is only safe behind a trusted
+ * reverse proxy (e.g., Vercel, Cloudflare) that strips client-supplied headers.
+ * Set TRUSTED_PROXY=true in your environment when running behind such a proxy.
+ * When TRUSTED_PROXY is not set, all requests use a placeholder IP for rate
+ * limiting, which provides basic protection but not per-client tracking.
  */
+
+/**
+ * Check if we're running behind a trusted proxy.
+ * Set TRUSTED_PROXY=true when deployed behind Vercel, Cloudflare, nginx, etc.
+ */
+const TRUSTED_PROXY = process.env.TRUSTED_PROXY === "true";
 
 /**
  * Extract client IP from request headers.
  *
- * Trust order:
- * 1. x-real-ip (single IP set by proxy)
- * 2. x-forwarded-for (first IP in chain, set by proxy)
- * 3. Fallback to 127.0.0.1 for local development
+ * When TRUSTED_PROXY=true:
+ * - Trust x-real-ip (single IP set by proxy)
+ * - Trust x-forwarded-for (first IP in chain)
+ *
+ * When TRUSTED_PROXY is not set:
+ * - Return "untrusted" as a safe fallback
+ * - Rate limiting still works (shared bucket) but can't track individual IPs
  *
  * On Vercel: x-forwarded-for contains the real client IP as the first entry.
  * The proxy appends its own IP, so we always take the first (leftmost) IP.
  */
 export function getClientIp(request: Request): string {
+  if (!TRUSTED_PROXY) {
+    // Not behind a trusted proxy - use placeholder to avoid spoofing
+    // Rate limiting will use a shared bucket for all "untrusted" requests
+    return "untrusted";
+  }
+
   // Prefer x-real-ip if set (single authoritative value from proxy)
   const realIp = request.headers.get("x-real-ip");
   if (realIp) {

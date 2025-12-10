@@ -1,6 +1,6 @@
 import { Elysia } from "elysia";
 import { html } from "@elysiajs/html";
-import { auth, isAdmin } from "../lib/auth";
+import { auth } from "../lib/auth";
 import { getAdminStats, getReports, resolveReport, deletePasteById, getRecentPastesByIp } from "../lib/db";
 import { renderDashboardPage, renderLoginPage } from "../templates/dashboard";
 import { validateOrigin, validateCallbackUrl } from "../lib/request";
