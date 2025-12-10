@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.5] - 2025-12-10
+
+### Added
+
+- Admin dashboard: Top Users section showing most active authenticated users
+- Admin dashboard: Recent Pastes table with metadata (views, creator, language, flags)
+- Admin dashboard: IP search/filter for recent pastes
+- Store creator IP on all new pastes for admin tracking
+- Database index on creator_ip for efficient lookups
+
+### Changed
+
+- Renamed "Top IPs" to "Top Anonymous IPs" with better empty state
+- Top IPs query now excludes user and endpoint rate limit entries
+
 ## [0.6.4] - 2025-12-10
 
 ### Security

@@ -85,7 +85,7 @@ const app = new Elysia({
     documentation: {
       info: {
         title: "punt.sh API",
-        version: "0.6.4",
+        version: "0.6.5",
         description: "Share terminal output instantly - API documentation",
       },
       tags: [
