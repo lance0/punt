@@ -27,6 +27,7 @@
 - [x] Burn after read: `punt --burn`
 - [x] Private pastes: `punt --private`
 - [x] npm package: `npm install -g @lance0/punt`
+- [x] File argument support: `punt file.ts` with auto language detection
 - [ ] Homebrew formula (deferred - npm/bun install works cross-platform)
 
 ## Phase 2.5: UI Polish (Complete)
@@ -81,6 +82,17 @@
 - [x] Homepage "Sign in with GitHub" button
 - [x] User navigation (avatar + name when logged in)
 - [x] Favicon on all auth/dashboard pages
+
+## Phase 6: Security Hardening (Complete)
+
+- [x] SHA-256 for API token hashing (replaced non-cryptographic Bun.hash)
+- [x] BETTER_AUTH_SECRET for session token signing
+- [x] CSRF protection on all cookie-based POST endpoints
+- [x] Open redirect fix for OAuth callback URLs
+- [x] TRUSTED_PROXY environment variable for IP header trust
+- [x] Sanitized health check errors (no database leak)
+- [x] Rate limiting on CLI init (10/min) and abuse report (5/min) endpoints
+- [x] Private paste URLs include view key in copy/download/QR
 
 ## Future Ideas
 

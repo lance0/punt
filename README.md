@@ -166,6 +166,7 @@ bun run dev
 | `TURSO_AUTH_TOKEN` | Turso auth token |
 | `BASE_URL` | Public URL (default: https://punt.sh) |
 | `PORT` | Server port (default: 3000) |
+| `TRUSTED_PROXY` | Set to `true` when behind a trusted proxy (Vercel, Cloudflare) |
 | `GITHUB_CLIENT_ID` | GitHub OAuth client ID |
 | `GITHUB_CLIENT_SECRET` | GitHub OAuth secret |
 | `BETTER_AUTH_SECRET` | Session signing secret |

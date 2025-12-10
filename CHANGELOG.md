@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.6] - 2025-12-10
+
+### Security
+
+- Add CSRF protection via Origin/Referer validation on all cookie-based POST endpoints
+- Fix open redirect vulnerability in `/login/github` callback URL validation
+- Add `TRUSTED_PROXY` environment variable to control IP header trust
+  - When not set, uses placeholder IP to prevent header spoofing
+  - Set `TRUSTED_PROXY=true` when running behind Vercel, Cloudflare, etc.
+- Fix private paste copy/download/QR buttons to include view key
+
+### Changed
+
+- Centralized IP extraction in `src/lib/request.ts` with security documentation
+- CLI: Use `node:` protocol for Node.js imports
+- CLI: Simplified stdin reading with `Bun.stdin.text()`
+- Pin `@types/bun` to `^1.3.4` instead of `latest`
+
+### Fixed
+
+- Remove duplicate `cleanupOldRateLimits` function (was in both db.ts and rate-limit.ts)
+- Remove unused `isAdmin` import from dashboard routes
+
 ## [0.6.5] - 2025-12-10
 
 ### Added
