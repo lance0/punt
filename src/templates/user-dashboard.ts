@@ -1,23 +1,13 @@
 import type { UserPaste } from "../lib/db";
 import type { ApiToken } from "../lib/tokens";
 import { formatTimeRemaining } from "../lib/time";
-
-const FAVICON = 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Ctext%20y%3D%22.9em%22%20font-size%3D%2290%22%3E%F0%9F%8F%88%3C%2Ftext%3E%3C%2Fsvg%3E';
+import { FAVICON, escapeHtml, renderHeader, renderFooter, getSharedStyles } from "./shared";
 
 interface DashboardProps {
   user: { id: string; name: string; email: string; image?: string | null };
   stats: { totalPastes: number; activePastes: number; totalViews: number };
   pastes: UserPaste[];
   tokens: ApiToken[];
-}
-
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
 }
 
 export function renderUserDashboard({ user, stats, pastes, tokens }: DashboardProps): string {
@@ -37,39 +27,10 @@ export function renderUserDashboard({ user, stats, pastes, tokens }: DashboardPr
       background: #1e1e2e;
       color: #cdd6f4;
       min-height: 100vh;
-      padding: 24px;
     }
-    .container { max-width: 1200px; margin: 0 auto; }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 32px;
-      flex-wrap: wrap;
-      gap: 16px;
-    }
-    .logo-link { text-decoration: none; display: flex; align-items: center; gap: 12px; }
-    .logo { font-size: 32px; }
-    h1 { color: #89b4fa; font-size: 24px; }
-    .header-nav { display: flex; gap: 16px; align-items: center; }
-    .header-nav a {
-      color: #6c7086;
-      text-decoration: none;
-      font-size: 14px;
-      transition: color 0.2s;
-    }
-    .header-nav a:hover { color: #cdd6f4; }
-    footer {
-      padding: 24px;
-      text-align: center;
-      border-top: 1px solid #313244;
-      color: #6c7086;
-      font-size: 13px;
-      margin-top: 32px;
-      font-family: system-ui, sans-serif;
-    }
-    footer a { color: #89b4fa; text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
+    ${getSharedStyles()}
+    .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+    .page-title { color: #89b4fa; font-size: 24px; margin-bottom: 24px; }
     .user-info {
       display: flex;
       align-items: center;
@@ -196,7 +157,7 @@ export function renderUserDashboard({ user, stats, pastes, tokens }: DashboardPr
     }
     .new-token-form input::placeholder { color: #6c7086; }
     @media (max-width: 768px) {
-      body { padding: 16px; }
+      .container { padding: 16px; }
       table { font-size: 12px; }
       th, td { padding: 8px 4px; }
       .actions { flex-direction: column; }
@@ -207,34 +168,15 @@ export function renderUserDashboard({ user, stats, pastes, tokens }: DashboardPr
         justify-content: center;
         padding: 12px 16px;
       }
-      .header-nav a {
-        min-height: 44px;
-        display: flex;
-        align-items: center;
-        padding: 0 8px;
-      }
       .new-token-form { flex-direction: column; }
       .new-token-form input { min-height: 44px; }
     }
   </style>
 </head>
 <body>
+  ${renderHeader({ user, callbackURL: '/me' })}
   <div class="container">
-    <header class="header">
-      <a href="/" class="logo-link">
-        <span class="logo">🏈</span>
-        <h1>punt.sh</h1>
-      </a>
-      <nav class="header-nav">
-        <a href="/">Home</a>
-        <a href="/docs">Docs</a>
-      </nav>
-      <div class="user-info">
-        ${user.image ? `<img src="${escapeHtml(user.image)}" alt="Avatar">` : ""}
-        <span>${escapeHtml(user.name)}</span>
-        <a href="/api/auth/sign-out" class="btn">Sign out</a>
-      </div>
-    </header>
+    <h1 class="page-title">My Dashboard</h1>
 
     <div class="stats">
       <div class="stat-card">
@@ -348,9 +290,7 @@ export function renderUserDashboard({ user, stats, pastes, tokens }: DashboardPr
     </div>
   </div>
 
-  <footer>
-    <p>punt.sh • <a href="https://github.com/lance0/punt">GitHub</a></p>
-  </footer>
+  ${renderFooter()}
 </body>
 </html>`;
 }
@@ -416,19 +356,13 @@ export function renderNewTokenPage(token: string): string {
       font-size: 16px;
     }
     .btn:hover { background: #74c7ec; }
-    footer {
+    ${getSharedStyles()}
+    .site-footer {
       position: fixed;
       bottom: 0;
       left: 0;
       right: 0;
-      padding: 16px;
-      text-align: center;
-      color: #6c7086;
-      font-size: 13px;
-      font-family: system-ui, sans-serif;
     }
-    footer a { color: #89b4fa; text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -443,9 +377,7 @@ export function renderNewTokenPage(token: string): string {
     <a href="/me" class="btn">Back to Dashboard</a>
   </div>
 
-  <footer>
-    <p>punt.sh • <a href="https://github.com/lance0/punt">GitHub</a></p>
-  </footer>
+  ${renderFooter()}
 </body>
 </html>`;
 }

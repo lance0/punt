@@ -1,5 +1,6 @@
 import { getAnsiCss } from "../lib/ansi";
 import { getShikiCss } from "../lib/highlight";
+import { FAVICON, GITHUB_ICON, escapeHtml, renderHeader, renderFooter, getSharedStyles } from "./shared";
 
 interface PastePageProps {
   id: string;
@@ -34,7 +35,7 @@ export function renderPastePage(props: PastePageProps): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <title>punt.sh - ${escapeHtml(id)}</title>
-  <link rel="icon" href="data:image/svg+xml,${encodeURIComponent(getFavicon())}">
+  <link rel="icon" href="${FAVICON}">
   <style>${getBaseStyles()}${contentCss}${getToastStyles()}${getLanguageBadgeStyles()}</style>
 </head>
 <body>
@@ -51,6 +52,7 @@ export function renderPastePage(props: PastePageProps): string {
       </a>
       <nav class="header-nav">
         <a href="/">Home</a>
+        <a href="/about">About</a>
         <a href="/docs">Docs</a>
       </nav>
       <span class="paste-id">/${escapeHtml(id)}</span>
@@ -127,9 +129,7 @@ export function renderPastePage(props: PastePageProps): string {
     </div>
   </main>
 
-  <footer>
-    <p>punt.sh • <a href="https://github.com/lance0/punt">GitHub</a></p>
-  </footer>
+  ${renderFooter()}
 
   <!-- Toast notification -->
   <div id="toast" class="toast" role="alert" aria-live="polite" aria-atomic="true"></div>
@@ -219,20 +219,11 @@ export function renderErrorPage(title: string, message: string): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <title>punt.sh - ${escapeHtml(title)}</title>
-  <link rel="icon" href="data:image/svg+xml,${encodeURIComponent(getFavicon())}">
-  <style>${getBaseStyles()}</style>
+  <link rel="icon" href="${FAVICON}">
+  <style>${getBaseStyles()}${getSharedStyles()}</style>
 </head>
 <body>
-  <header>
-    <a href="/" class="logo">
-      <span class="logo-icon">🏈</span>
-      punt.sh
-    </a>
-    <nav class="header-nav">
-      <a href="/">Home</a>
-      <a href="/docs">Docs</a>
-    </nav>
-  </header>
+  ${renderHeader()}
 
   <main class="error-page">
     <div class="error-icon">😵</div>
@@ -241,9 +232,7 @@ export function renderErrorPage(title: string, message: string): string {
     <a href="/" class="btn btn-primary">Back to home</a>
   </main>
 
-  <footer>
-    <p>punt.sh • <a href="https://github.com/lance0/punt">GitHub</a></p>
-  </footer>
+  ${renderFooter()}
 </body>
 </html>`;
 }
@@ -256,20 +245,11 @@ export function renderPrivateKeyPage(id: string): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <title>punt.sh - Private paste</title>
-  <link rel="icon" href="data:image/svg+xml,${encodeURIComponent(getFavicon())}">
-  <style>${getBaseStyles()}${getPrivateKeyStyles()}</style>
+  <link rel="icon" href="${FAVICON}">
+  <style>${getBaseStyles()}${getSharedStyles()}${getPrivateKeyStyles()}</style>
 </head>
 <body>
-  <header>
-    <a href="/" class="logo">
-      <span class="logo-icon">🏈</span>
-      punt.sh
-    </a>
-    <nav class="header-nav">
-      <a href="/">Home</a>
-      <a href="/docs">Docs</a>
-    </nav>
-  </header>
+  ${renderHeader()}
 
   <main class="private-page">
     <div class="private-icon">🔒</div>
@@ -281,9 +261,7 @@ export function renderPrivateKeyPage(id: string): string {
     </form>
   </main>
 
-  <footer>
-    <p>punt.sh • <a href="https://github.com/lance0/punt">GitHub</a></p>
-  </footer>
+  ${renderFooter()}
 
   <script>
     function submitKey(e) {
@@ -373,32 +351,11 @@ export function renderHomePage(user?: HomePageUser): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>punt.sh - Share terminal output</title>
   <meta name="description" content="Share terminal output via short URL with accurate ANSI colors. No account required, ephemeral by design.">
-  <link rel="icon" href="data:image/svg+xml,${encodeURIComponent(getFavicon())}">
-  <style>${getBaseStyles()}${getNavStyles()}</style>
+  <link rel="icon" href="${FAVICON}">
+  <style>${getBaseStyles()}${getSharedStyles()}</style>
 </head>
 <body>
-  <header>
-    <a href="/" class="logo">
-      <span class="logo-icon">🏈</span>
-      punt.sh
-    </a>
-    <nav class="nav-links">
-      <a href="/docs" class="nav-link docs-link">Docs</a>
-      ${user ? `
-        <a href="/me" class="nav-link user-link">
-          ${user.image ? `<img src="${escapeHtml(user.image)}" alt="" class="nav-avatar">` : ""}
-          <span>${escapeHtml(user.name)}</span>
-        </a>
-      ` : `
-        <a href="/login/github?callbackURL=/" class="nav-link login-link">
-          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-          </svg>
-          Sign in
-        </a>
-      `}
-    </nav>
-  </header>
+  ${renderHeader({ activePage: 'home', user, callbackURL: '/' })}
 
   <main class="home-page">
     <div class="hero">
@@ -490,15 +447,15 @@ command | curl -X POST -H "X-TTL: 1h" --data-binary @- ${baseUrl}/api/paste</cod
         </div>
         <div class="feature">
           <span class="feature-icon">⏱️</span>
-          <span>24h default expiry</span>
+          <span>Up to 30 days TTL</span>
         </div>
         <div class="feature">
           <span class="feature-icon">📦</span>
           <span>4 MB size limit</span>
         </div>
         <div class="feature">
-          <span class="feature-icon">🚦</span>
-          <span>100 pastes/day per IP</span>
+          <span class="feature-icon">🚀</span>
+          <span>10x limits when signed in</span>
         </div>
         <div class="feature">
           <span class="feature-icon">🔗</span>
@@ -508,9 +465,7 @@ command | curl -X POST -H "X-TTL: 1h" --data-binary @- ${baseUrl}/api/paste</cod
     </div>
   </main>
 
-  <footer>
-    <p>punt.sh • <a href="https://github.com/lance0/punt">GitHub</a></p>
-  </footer>
+  ${renderFooter()}
 
   <script>
     function setMode(mode) {
@@ -531,89 +486,6 @@ command | curl -X POST -H "X-TTL: 1h" --data-binary @- ${baseUrl}/api/paste</cod
   </script>
 </body>
 </html>`;
-}
-
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-function getFavicon(): string {
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🏈</text></svg>`;
-}
-
-function getNavStyles(): string {
-  return `
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin-left: auto;
-    }
-
-    .nav-link {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #6c7086;
-      text-decoration: none;
-      font-size: 14px;
-      transition: color 0.2s;
-    }
-
-    .nav-link:hover {
-      color: #cdd6f4;
-    }
-
-    .nav-avatar {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-    }
-
-    .login-link svg {
-      opacity: 0.8;
-    }
-
-    .user-link {
-      padding: 6px 12px;
-      background: #313244;
-      border-radius: 6px;
-      color: #a6e3a1 !important;
-    }
-
-    .user-link:hover {
-      background: #45475a;
-    }
-
-    /* Keep header horizontal when nav-links present (homepage) */
-    header:has(.nav-links) {
-      flex-direction: row !important;
-      align-items: center !important;
-      flex-wrap: nowrap;
-    }
-
-    @media (max-width: 768px) {
-      .nav-link {
-        font-size: 12px;
-        gap: 6px;
-      }
-
-      .nav-link svg {
-        width: 14px;
-        height: 14px;
-      }
-
-      .nav-avatar {
-        width: 18px;
-        height: 18px;
-      }
-    }
-  `;
 }
 
 function getToastStyles(): string {
@@ -681,7 +553,7 @@ function getBaseStyles(): string {
       width: 100%;
     }
 
-    header {
+    header:not(.site-header) {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -1123,24 +995,6 @@ function getBaseStyles(): string {
       font-size: 20px;
     }
 
-    footer {
-      padding: 20px 24px;
-      border-top: 1px solid #313244;
-      text-align: center;
-      font-size: 13px;
-      color: #6c7086;
-      font-family: system-ui, -apple-system, sans-serif;
-    }
-
-    footer a {
-      color: #89b4fa;
-      text-decoration: none;
-    }
-
-    footer a:hover {
-      text-decoration: underline;
-    }
-
     @media (max-width: 768px) {
       html {
         font-size: 14px;
@@ -1151,7 +1005,7 @@ function getBaseStyles(): string {
         padding: 8px 12px;
       }
 
-      header {
+      header:not(.site-header) {
         flex-direction: column;
         align-items: flex-start;
         padding: 12px 16px;
@@ -1307,11 +1161,6 @@ function getBaseStyles(): string {
 
       .feature-icon {
         font-size: 16px;
-      }
-
-      footer {
-        font-size: 11px;
-        padding: 16px;
       }
 
       /* Private key page */

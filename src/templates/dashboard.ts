@@ -1,4 +1,5 @@
 import type { AdminStats, Report } from "../lib/db";
+import { FAVICON, GITHUB_ICON, escapeHtml, renderHeader, renderFooter, getSharedStyles } from "./shared";
 
 interface DashboardProps {
   user: { name: string; email: string; image?: string | null };
@@ -12,7 +13,7 @@ export function renderLoginPage(): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Ctext%20y%3D%22.9em%22%20font-size%3D%2290%22%3E%F0%9F%8F%88%3C%2Ftext%3E%3C%2Fsvg%3E">
+  <link rel="icon" href="${FAVICON}">
   <title>punt.sh - Admin Login</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -24,6 +25,13 @@ export function renderLoginPage(): string {
       display: flex;
       align-items: center;
       justify-content: center;
+    }
+    ${getSharedStyles()}
+    .site-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
     }
     .login-box {
       text-align: center;
@@ -50,19 +58,6 @@ export function renderLoginPage(): string {
     }
     .btn:hover { background: #45475a; transform: translateY(-2px); }
     .btn svg { width: 24px; height: 24px; }
-    footer {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      padding: 16px;
-      text-align: center;
-      color: #6c7086;
-      font-size: 13px;
-      font-family: system-ui, sans-serif;
-    }
-    footer a { color: #89b4fa; text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
     @media (max-width: 768px) {
       .login-box { padding: 32px 24px; margin: 16px; }
       .btn { min-height: 44px; padding: 12px 24px; }
@@ -82,9 +77,7 @@ export function renderLoginPage(): string {
     </a>
   </div>
 
-  <footer>
-    <p>punt.sh • <a href="https://github.com/lance0/punt">GitHub</a></p>
-  </footer>
+  ${renderFooter()}
 </body>
 </html>`;
 }
@@ -97,7 +90,7 @@ export function renderDashboardPage({ user, stats, reports }: DashboardProps): s
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Ctext%20y%3D%22.9em%22%20font-size%3D%2290%22%3E%F0%9F%8F%88%3C%2Ftext%3E%3C%2Fsvg%3E">
+  <link rel="icon" href="${FAVICON}">
   <title>punt.sh - Admin Dashboard</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -107,46 +100,7 @@ export function renderDashboardPage({ user, stats, reports }: DashboardProps): s
       color: #cdd6f4;
       min-height: 100vh;
     }
-    header {
-      background: #181825;
-      border-bottom: 1px solid #313244;
-      padding: 16px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .logo {
-      color: #89b4fa;
-      text-decoration: none;
-      font-size: 20px;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .header-nav { display: flex; gap: 16px; align-items: center; }
-    .header-nav a {
-      color: #6c7086;
-      text-decoration: none;
-      font-size: 14px;
-      transition: color 0.2s;
-    }
-    .header-nav a:hover { color: #cdd6f4; }
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .user-info img {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-    }
-    .user-info a {
-      color: #f38ba8;
-      text-decoration: none;
-      font-size: 14px;
-    }
+    ${getSharedStyles()}
     main { padding: 24px; max-width: 1200px; margin: 0 auto; }
     h1 { color: #89b4fa; margin-bottom: 24px; }
     h2 { color: #89b4fa; margin: 32px 0 16px; font-size: 18px; }
@@ -239,19 +193,7 @@ export function renderDashboardPage({ user, stats, reports }: DashboardProps): s
     .top-ips li:last-child { border-bottom: none; }
     .ip { color: #6c7086; }
     .count { color: #f9e2af; }
-    footer {
-      padding: 24px;
-      text-align: center;
-      border-top: 1px solid #313244;
-      color: #6c7086;
-      font-size: 13px;
-      margin-top: 32px;
-      font-family: system-ui, sans-serif;
-    }
-    footer a { color: #89b4fa; text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
     @media (max-width: 768px) {
-      header { flex-wrap: wrap; gap: 12px; padding: 12px 16px; }
       main { padding: 16px; }
       h1 { font-size: 20px; }
       .stat-card { padding: 16px; }
@@ -260,28 +202,11 @@ export function renderDashboardPage({ user, stats, reports }: DashboardProps): s
       .reports-table th, .reports-table td { padding: 8px; }
       .actions { flex-direction: column; gap: 4px; }
       .btn { min-height: 44px; padding: 10px 16px; }
-      .header-nav a {
-        min-height: 44px;
-        display: flex;
-        align-items: center;
-        padding: 0 8px;
-      }
     }
   </style>
 </head>
 <body>
-  <header>
-    <a href="/" class="logo">🏈 punt.sh</a>
-    <nav class="header-nav">
-      <a href="/">Home</a>
-      <a href="/docs">Docs</a>
-    </nav>
-    <div class="user-info">
-      ${user.image ? `<img src="${user.image}" alt="">` : ""}
-      <span>${user.name}</span>
-      <a href="/api/auth/sign-out">Sign out</a>
-    </div>
-  </header>
+  ${renderHeader({ user, callbackURL: '/dashboard' })}
 
   <main>
     <h1>Admin Dashboard</h1>
@@ -363,18 +288,7 @@ export function renderDashboardPage({ user, stats, reports }: DashboardProps): s
     `}
   </main>
 
-  <footer>
-    <p>punt.sh • <a href="https://github.com/lance0/punt">GitHub</a></p>
-  </footer>
+  ${renderFooter()}
 </body>
 </html>`;
-}
-
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
 }

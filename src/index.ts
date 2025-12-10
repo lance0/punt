@@ -11,6 +11,7 @@ import { cliAuthRoutes } from "./routes/cli-auth";
 import { userRoutes } from "./routes/user";
 import { renderHomePage } from "./templates/paste";
 import { renderDocsPage } from "./templates/docs";
+import { renderAboutPage } from "./templates/about";
 import { logger } from "./lib/logger";
 import { auth } from "./lib/auth";
 
@@ -116,6 +117,11 @@ const app = new Elysia({
   .get("/docs", async ({ request }) => {
     const session = await auth.api.getSession({ headers: request.headers });
     return renderDocsPage({ user: session?.user });
+  })
+  // About page
+  .get("/about", async ({ request }) => {
+    const session = await auth.api.getSession({ headers: request.headers });
+    return renderAboutPage({ user: session?.user });
   })
   // View routes last (catch-all for /:id)
   .use(viewRoutes);

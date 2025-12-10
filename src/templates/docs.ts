@@ -1,4 +1,4 @@
-const FAVICON = 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Ctext%20y%3D%22.9em%22%20font-size%3D%2290%22%3E%F0%9F%8F%88%3C%2Ftext%3E%3C%2Fsvg%3E';
+import { FAVICON, renderHeader, renderFooter, getSharedStyles } from "./shared";
 
 interface DocsPageProps {
   user?: { name: string; image?: string | null };
@@ -24,49 +24,7 @@ export function renderDocsPage({ user }: DocsPageProps = {}): string {
       min-height: 100vh;
       line-height: 1.6;
     }
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 16px 24px;
-      border-bottom: 1px solid #313244;
-      background: rgba(17, 17, 27, 0.5);
-    }
-    .logo {
-      color: #89b4fa;
-      text-decoration: none;
-      font-size: 20px;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .logo:hover { color: #b4befe; }
-    .logo-icon { font-size: 24px; }
-    nav { display: flex; gap: 16px; align-items: center; }
-    nav a {
-      color: #6c7086;
-      text-decoration: none;
-      font-size: 14px;
-      transition: color 0.2s;
-    }
-    nav a:hover { color: #cdd6f4; }
-    nav a.active { color: #89b4fa; }
-    .user-link {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 12px;
-      background: #313244;
-      border-radius: 6px;
-      color: #a6e3a1 !important;
-    }
-    .user-avatar { width: 20px; height: 20px; border-radius: 50%; }
-    .login-link {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+    ${getSharedStyles()}
     main {
       max-width: 800px;
       margin: 0 auto;
@@ -123,12 +81,17 @@ export function renderDocsPage({ user }: DocsPageProps = {}): string {
     .comment { color: #6c7086; }
     .flag { color: #f9e2af; }
     .url { color: #89b4fa; }
+    .json-key { color: #89b4fa; }
+    .json-string { color: #a6e3a1; }
+    .json-number { color: #fab387; }
     ul, ol {
       margin-bottom: 16px;
       padding-left: 24px;
       font-family: system-ui, sans-serif;
     }
     li { margin-bottom: 8px; }
+    a { color: #89b4fa; }
+    a:hover { text-decoration: underline; }
     .faq-item {
       background: #181825;
       border: 1px solid #313244;
@@ -145,6 +108,12 @@ export function renderDocsPage({ user }: DocsPageProps = {}): string {
     .faq-a {
       color: #a6adc8;
       font-family: system-ui, sans-serif;
+    }
+    .faq-a code {
+      background: #313244;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 13px;
     }
     .table-wrap {
       overflow-x: auto;
@@ -166,6 +135,26 @@ export function renderDocsPage({ user }: DocsPageProps = {}): string {
       background: #181825;
     }
     td code { color: #f9e2af; }
+    .comparison-table {
+      background: #181825;
+      border: 1px solid #313244;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .comparison-table th {
+      background: #11111b;
+    }
+    .comparison-table tr:last-child td {
+      border-bottom: none;
+    }
+    .comparison-table .highlight {
+      color: #a6e3a1;
+      font-weight: 600;
+    }
+    .comparison-table .dim {
+      color: #6c7086;
+    }
     .tip {
       background: rgba(166, 227, 161, 0.1);
       border: 1px solid #a6e3a1;
@@ -178,16 +167,36 @@ export function renderDocsPage({ user }: DocsPageProps = {}): string {
       font-weight: bold;
       margin-bottom: 4px;
     }
-    footer {
-      padding: 24px;
-      text-align: center;
-      border-top: 1px solid #313244;
-      color: #6c7086;
-      font-size: 13px;
-      font-family: system-ui, sans-serif;
+    .info-box {
+      background: rgba(137, 180, 250, 0.1);
+      border: 1px solid #89b4fa;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
     }
-    footer a { color: #89b4fa; text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
+    .info-box-title {
+      color: #89b4fa;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .swagger-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #313244;
+      color: #cdd6f4;
+      padding: 12px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 14px;
+      border: 1px solid #45475a;
+      transition: all 0.2s;
+      margin-bottom: 16px;
+    }
+    .swagger-link:hover {
+      background: #45475a;
+      text-decoration: none;
+    }
     @media (max-width: 768px) {
       main { padding: 24px 16px; }
       h1 { font-size: 24px; }
@@ -196,35 +205,13 @@ export function renderDocsPage({ user }: DocsPageProps = {}): string {
   </style>
 </head>
 <body>
-  <header>
-    <a href="/" class="logo">
-      <span class="logo-icon">🏈</span>
-      punt.sh
-    </a>
-    <nav>
-      <a href="/">Home</a>
-      <a href="/docs" class="active">Docs</a>
-      ${user ? `
-        <a href="/me" class="user-link">
-          ${user.image ? `<img src="${escapeHtml(user.image)}" alt="" class="user-avatar">` : ''}
-          ${escapeHtml(user.name)}
-        </a>
-      ` : `
-        <a href="/login/github?callbackURL=/docs" class="login-link">
-          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-          </svg>
-          Sign in
-        </a>
-      `}
-    </nav>
-  </header>
+  ${renderHeader({ activePage: 'docs', user, callbackURL: '/docs' })}
 
   <main>
     <h1>Documentation</h1>
     <p class="subtitle">Everything you need to know about using punt.sh</p>
 
-    <h2>Installation</h2>
+    <h2>Quick Start</h2>
 
     <h3>CLI (Recommended)</h3>
     <p>The CLI provides the best experience with colored output, progress indicators, and easy options.</p>
@@ -242,45 +229,74 @@ bunx @lance0/punt</code></pre>
     <p>Works anywhere with curl - no installation needed.</p>
     <pre><code>command | curl -X POST --data-binary @- ${baseUrl}/api/paste</code></pre>
 
-    <h2>Basic Usage</h2>
+    <h2>Why Sign In?</h2>
+    <p>punt.sh works great without an account, but signing in with GitHub unlocks higher limits and paste management.</p>
 
-    <h3>Piping Output</h3>
-    <pre><code><span class="comment"># CLI</span>
+    <div class="table-wrap">
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Anonymous</th>
+            <th>Signed In</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Daily paste limit</td>
+            <td class="dim">100 / day</td>
+            <td class="highlight">1,000 / day</td>
+          </tr>
+          <tr>
+            <td>Maximum TTL</td>
+            <td class="dim">7 days</td>
+            <td class="highlight">30 days</td>
+          </tr>
+          <tr>
+            <td>Paste dashboard</td>
+            <td class="dim">-</td>
+            <td class="highlight">View & manage all pastes</td>
+          </tr>
+          <tr>
+            <td>Extend paste TTL</td>
+            <td class="dim">-</td>
+            <td class="highlight">+7 days anytime</td>
+          </tr>
+          <tr>
+            <td>API tokens</td>
+            <td class="dim">-</td>
+            <td class="highlight">Create & revoke tokens</td>
+          </tr>
+          <tr>
+            <td>Delete pastes</td>
+            <td class="dim">With delete key only</td>
+            <td class="highlight">From dashboard</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <pre><code><span class="comment"># Sign in via CLI</span>
+punt login
+
+<span class="comment"># Check who you're logged in as</span>
+punt whoami
+
+<span class="comment"># All pastes created while logged in are linked to your account</span>
+docker logs myapp | punt --ttl 30d</code></pre>
+
+    <h2>Features</h2>
+
+    <h3>ANSI Color Preservation</h3>
+    <p>By default, punt.sh preserves terminal colors. ANSI escape codes are rendered as styled HTML, so your terminal output looks exactly as intended - no more colorless pastes in Slack or Discord.</p>
+    <pre><code><span class="comment"># Just pipe any command - colors are preserved automatically</span>
 npm test 2>&1 | punt
 docker logs myapp | punt
-kubectl describe pod mypod | punt
+kubectl describe pod mypod | punt</code></pre>
 
-<span class="comment"># curl</span>
-npm test 2>&1 | curl -X POST --data-binary @- ${baseUrl}/api/paste</code></pre>
-
-    <h3>Custom Expiry (TTL)</h3>
-    <pre><code><span class="comment"># CLI</span>
-command | punt <span class="flag">--ttl 1h</span>      <span class="comment"># 1 hour</span>
-command | punt <span class="flag">--ttl 7d</span>      <span class="comment"># 7 days</span>
-
-<span class="comment"># curl</span>
-command | curl -H "X-TTL: 1h" -X POST --data-binary @- ${baseUrl}/api/paste</code></pre>
-
-    <h3>Burn After Read</h3>
-    <p>Paste is automatically deleted after being viewed once.</p>
-    <pre><code><span class="comment"># CLI</span>
-cat secret.txt | punt <span class="flag">--burn</span>
-
-<span class="comment"># curl</span>
-cat secret.txt | curl -H "X-Burn-After-Read: 1" -X POST --data-binary @- ${baseUrl}/api/paste</code></pre>
-
-    <h3>Private Pastes</h3>
-    <p>Generates a view key required to access the paste.</p>
-    <pre><code><span class="comment"># CLI</span>
-echo "secret" | punt <span class="flag">--private</span>
-
-<span class="comment"># curl</span>
-echo "secret" | curl -H "X-Private: 1" -X POST --data-binary @- ${baseUrl}/api/paste</code></pre>
-
-    <h2>Syntax Highlighting</h2>
-    <p>By default, punt.sh preserves ANSI terminal colors. For code snippets, you can enable syntax highlighting with the <code class="inline-code">--lang</code> flag.</p>
-
-    <pre><code><span class="comment"># CLI - specify language</span>
+    <h3>Syntax Highlighting</h3>
+    <p>For code snippets (not terminal output), use the <code class="inline-code">--lang</code> flag to enable syntax highlighting with 100+ supported languages.</p>
+    <pre><code><span class="comment"># Specify language for syntax highlighting</span>
 cat src/index.ts | punt <span class="flag">--lang typescript</span>
 cat script.py | punt <span class="flag">--lang python</span>
 cat main.go | punt <span class="flag">--lang go</span>
@@ -288,22 +304,44 @@ cat main.go | punt <span class="flag">--lang go</span>
 <span class="comment"># Short aliases work too</span>
 cat app.js | punt <span class="flag">--lang js</span>
 cat script.py | punt <span class="flag">--lang py</span>
-
-<span class="comment"># curl</span>
-cat file.rs | curl -H "X-Language: rust" -X POST --data-binary @- ${baseUrl}/api/paste</code></pre>
-
-    <h3>Supported Languages</h3>
-    <p>Common languages include: JavaScript, TypeScript, Python, Go, Rust, Java, C, C++, Ruby, PHP, Bash, SQL, HTML, CSS, JSON, YAML, Markdown, and many more. Use <code class="inline-code">ansi</code> to explicitly render as terminal output.</p>
+cat main.rs | punt <span class="flag">--lang rs</span></code></pre>
 
     <div class="tip">
-      <div class="tip-title">When to use syntax highlighting vs ANSI</div>
+      <div class="tip-title">ANSI vs Syntax Highlighting</div>
       <ul style="margin-bottom: 0;">
-        <li><strong>Use ANSI (default):</strong> Terminal output, logs, test results, command output</li>
+        <li><strong>Use default (ANSI):</strong> Terminal output, logs, test results, command output</li>
         <li><strong>Use --lang:</strong> Source code files, config files, snippets without ANSI colors</li>
       </ul>
     </div>
 
-    <h2>CLI Commands</h2>
+    <h3>Burn After Read</h3>
+    <p>Self-destructing pastes that are automatically deleted after being viewed once. Perfect for sensitive logs or one-time shares.</p>
+    <pre><code><span class="comment"># CLI</span>
+cat secret.txt | punt <span class="flag">--burn</span>
+
+<span class="comment"># curl</span>
+cat secret.txt | curl -H "X-Burn-After-Read: 1" -X POST --data-binary @- ${baseUrl}/api/paste</code></pre>
+
+    <h3>Private Pastes</h3>
+    <p>Generates a view key that's required to access the paste. Share the key only with people who need to see it.</p>
+    <pre><code><span class="comment"># CLI - returns URL with ?key=xxx appended</span>
+echo "secret" | punt <span class="flag">--private</span>
+
+<span class="comment"># curl</span>
+echo "secret" | curl -H "X-Private: 1" -X POST --data-binary @- ${baseUrl}/api/paste</code></pre>
+
+    <h3>Custom TTL</h3>
+    <p>Set how long your paste lives. Default is 24 hours.</p>
+    <pre><code><span class="comment"># TTL format: number + unit (m=minutes, h=hours, d=days)</span>
+command | punt <span class="flag">--ttl 30m</span>     <span class="comment"># 30 minutes</span>
+command | punt <span class="flag">--ttl 2h</span>      <span class="comment"># 2 hours</span>
+command | punt <span class="flag">--ttl 7d</span>      <span class="comment"># 7 days (max for anonymous)</span>
+command | punt <span class="flag">--ttl 30d</span>     <span class="comment"># 30 days (requires sign in)</span>
+
+<span class="comment"># curl</span>
+command | curl -H "X-TTL: 1h" -X POST --data-binary @- ${baseUrl}/api/paste</code></pre>
+
+    <h2>CLI Reference</h2>
 
     <div class="table-wrap">
       <table>
@@ -332,7 +370,7 @@ cat file.rs | curl -H "X-Language: rust" -X POST --data-binary @- ${baseUrl}/api
           </tr>
           <tr>
             <td><code>punt --lang &lt;language&gt;</code></td>
-            <td>Enable syntax highlighting (e.g., ts, py, go)</td>
+            <td>Enable syntax highlighting</td>
           </tr>
           <tr>
             <td><code>punt --cat &lt;id&gt;</code></td>
@@ -364,51 +402,97 @@ cat file.rs | curl -H "X-Language: rust" -X POST --data-binary @- ${baseUrl}/api
 
     <h2>API Reference</h2>
 
+    <div class="info-box">
+      <div class="info-box-title">OpenAPI Documentation</div>
+      <p style="margin-bottom: 12px;">For complete API documentation including all request/response schemas, see our interactive OpenAPI docs.</p>
+      <a href="/swagger" class="swagger-link">View OpenAPI Documentation</a>
+    </div>
+
     <h3>Create Paste</h3>
     <pre><code>POST /api/paste
 Content-Type: text/plain
 
 <span class="comment"># Headers (all optional):</span>
-X-TTL: 1h              <span class="comment"># Expiry time</span>
-X-Burn-After-Read: 1   <span class="comment"># Delete after view</span>
+X-TTL: 1h              <span class="comment"># Expiry time (30m, 2h, 7d, etc.)</span>
+X-Burn-After-Read: 1   <span class="comment"># Delete after first view</span>
 X-Private: 1           <span class="comment"># Require view key</span>
-X-Language: typescript <span class="comment"># Syntax highlighting</span>
-Authorization: Bearer punt_xxx  <span class="comment"># API token</span></code></pre>
+X-Language: typescript <span class="comment"># Syntax highlighting language</span>
+Authorization: Bearer punt_xxx  <span class="comment"># API token (optional)</span></code></pre>
+
+    <h3>Response</h3>
+    <pre><code>{
+  <span class="json-key">"url"</span>: <span class="json-string">"${baseUrl}/abc123"</span>,
+  <span class="json-key">"raw"</span>: <span class="json-string">"${baseUrl}/abc123/raw"</span>,
+  <span class="json-key">"deleteKey"</span>: <span class="json-string">"xyz789abc"</span>,
+  <span class="json-key">"expiresAt"</span>: <span class="json-string">"2024-01-15T12:00:00.000Z"</span>,
+  <span class="json-key">"viewKey"</span>: <span class="json-string">"secret123"</span>  <span class="comment">// only if --private</span>
+}</code></pre>
 
     <h3>Get Paste</h3>
-    <pre><code>GET /:id          <span class="comment"># HTML view</span>
-GET /:id/raw      <span class="comment"># Raw content</span>
-GET /:id?key=xxx  <span class="comment"># Private paste with key</span></code></pre>
+    <pre><code>GET /:id          <span class="comment"># HTML view with syntax highlighting</span>
+GET /:id/raw      <span class="comment"># Raw content (original text)</span>
+GET /:id?key=xxx  <span class="comment"># Private paste with view key</span></code></pre>
 
     <h3>Delete Paste</h3>
-    <pre><code>DELETE /api/paste/:id/:deleteKey</code></pre>
+    <pre><code>DELETE /api/paste/:id/:deleteKey
 
-    <h2>Authenticated Users</h2>
+<span class="comment"># Response</span>
+{
+  <span class="json-key">"success"</span>: true,
+  <span class="json-key">"message"</span>: <span class="json-string">"Paste deleted"</span>
+}</code></pre>
 
-    <div class="tip">
-      <div class="tip-title">Benefits of signing in</div>
-      <ul style="margin-bottom: 0;">
-        <li>Extended TTL: up to 30 days (vs 7 days anonymous)</li>
-        <li>Higher rate limits: 1000/day (vs 100/day)</li>
-        <li>Manage your pastes from the dashboard</li>
-        <li>Create and revoke API tokens</li>
-      </ul>
+    <h3>Example: Create Paste with curl</h3>
+    <pre><code><span class="comment"># Create a paste</span>
+$ echo "Hello, World!" | curl -X POST --data-binary @- ${baseUrl}/api/paste
+
+<span class="comment"># Response:</span>
+{
+  "url": "${baseUrl}/abc123",
+  "raw": "${baseUrl}/abc123/raw",
+  "deleteKey": "xyz789abc",
+  "expiresAt": "2024-01-15T12:00:00.000Z"
+}
+
+<span class="comment"># Delete the paste</span>
+$ curl -X DELETE ${baseUrl}/api/paste/abc123/xyz789abc</code></pre>
+
+    <h2>Rate Limits</h2>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>User Type</th>
+            <th>Limit</th>
+            <th>Window</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Anonymous</td>
+            <td>100 pastes</td>
+            <td>Per day, per IP</td>
+          </tr>
+          <tr>
+            <td>Authenticated</td>
+            <td>1,000 pastes</td>
+            <td>Per day, per user</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
-    <pre><code><span class="comment"># Sign in via CLI</span>
-punt login
-
-<span class="comment"># Check who you're logged in as</span>
-punt whoami
-
-<span class="comment"># All pastes created while logged in are linked to your account</span>
-docker logs myapp | punt --ttl 30d</code></pre>
+    <p>Rate limit headers are included in API responses:</p>
+    <pre><code>X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 95
+X-RateLimit-Reset: 1705315200</code></pre>
 
     <h2>FAQ</h2>
 
     <div class="faq-item">
       <div class="faq-q">How long do pastes last?</div>
-      <div class="faq-a">Default is 24 hours. Anonymous users can set up to 7 days, authenticated users up to 30 days.</div>
+      <div class="faq-a">Default is 24 hours. Anonymous users can set up to 7 days, authenticated users up to 30 days. Authenticated users can also extend their pastes by +7 days from the dashboard.</div>
     </div>
 
     <div class="faq-item">
@@ -423,38 +507,37 @@ docker logs myapp | punt --ttl 30d</code></pre>
 
     <div class="faq-item">
       <div class="faq-q">What's the rate limit?</div>
-      <div class="faq-a">Anonymous: 100 pastes/day per IP. Authenticated: 1000 pastes/day.</div>
+      <div class="faq-a">Anonymous: 100 pastes/day per IP. Authenticated: 1,000 pastes/day. <a href="#rate-limits">See details above.</a></div>
     </div>
 
     <div class="faq-item">
       <div class="faq-q">Can I delete a paste?</div>
-      <div class="faq-a">Yes! Each paste comes with a delete key. Use <code class="inline-code">punt --delete &lt;id&gt; &lt;key&gt;</code> or the dashboard if logged in.</div>
+      <div class="faq-a">Yes! Each paste comes with a delete key. Use <code>punt --delete &lt;id&gt; &lt;key&gt;</code> or the dashboard if logged in.</div>
     </div>
 
     <div class="faq-item">
       <div class="faq-q">Why are ANSI colors preserved?</div>
-      <div class="faq-a">punt.sh renders ANSI escape codes as colored HTML, so your terminal output looks exactly as intended.</div>
+      <div class="faq-a">punt.sh renders ANSI escape codes as colored HTML, so your terminal output looks exactly as intended - no more sharing screenshots or losing formatting.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Where's the full API documentation?</div>
+      <div class="faq-a">Visit <a href="/swagger">/swagger</a> for interactive OpenAPI documentation with all endpoints, schemas, and the ability to try requests directly.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">How do I report abuse?</div>
+      <div class="faq-a">Report abusive content by emailing the paste URL to <a href="mailto:abuse@punt.sh">abuse@punt.sh</a> or opening an issue on <a href="https://github.com/lance0/punt">GitHub</a>.</div>
     </div>
 
     <div class="faq-item">
       <div class="faq-q">Can I self-host punt.sh?</div>
-      <div class="faq-a">Yes! It's open source. Check the <a href="https://github.com/lance0/punt">GitHub repo</a> for deployment instructions.</div>
+      <div class="faq-a">Yes! It's open source under MIT license. Check the <a href="https://github.com/lance0/punt">GitHub repo</a> for deployment instructions.</div>
     </div>
 
   </main>
 
-  <footer>
-    <p>punt.sh • <a href="https://github.com/lance0/punt">GitHub</a></p>
-  </footer>
+  ${renderFooter()}
 </body>
 </html>`;
-}
-
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
 }
