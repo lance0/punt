@@ -4,7 +4,7 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { mkdir } from "node:fs/promises";
 
-const VERSION = "0.5.0";
+const VERSION = "0.5.1";
 const API_URL = process.env.PUNT_API_URL ?? "https://punt.sh";
 const CONFIG_DIR = join(homedir(), ".config", "punt");
 const TOKEN_FILE = join(CONFIG_DIR, "token");
@@ -192,15 +192,22 @@ function printVersion() {
 	console.log(`punt-cli ${VERSION}`);
 }
 
-function printSuccess(url: string, deleteKey: string, expiresIn: string) {
+interface SuccessInfo {
+	url: string;
+	deleteKey: string;
+	expiresIn: string;
+	flags?: string[];
+}
+
+function printSuccess({ url, deleteKey, expiresIn, flags = [] }: SuccessInfo) {
 	console.error(); // blank line
 	console.error(`${FOOTBALL} ${c.bold}${c.green}Punted!${c.reset}`);
 	console.error();
-	console.error(`   ${c.bold}URL${c.reset}  ${c.cyan}${url}${c.reset}`);
-	console.error(`   ${c.bold}Raw${c.reset}  ${c.dim}${url}/raw${c.reset}`);
-	console.error(
-		`   ${c.dim}Expires in ${expiresIn} | Delete key: ${deleteKey.slice(0, 8)}...${c.reset}`,
-	);
+	console.error(`   ${c.cyan}URL${c.reset}  ${url}`);
+	console.error(`   ${c.cyan}Raw${c.reset}  ${url}/raw`);
+	const flagStr = flags.length > 0 ? `  ${flags.join(" ")}` : "";
+	console.error(`   ${c.yellow}Expires${c.reset} ${expiresIn}${flagStr}`);
+	console.error(`   ${c.yellow}Delete${c.reset}  ${deleteKey}`);
 	console.error();
 
 	// Print just the URL to stdout for piping
@@ -511,25 +518,19 @@ async function createPaste(
 		}
 
 		// Calculate expiry display
-		let expiresIn = "24h";
-		if (options.ttl) {
-			expiresIn = options.ttl;
-			if (ttlWarning) {
-				expiresIn += ` (${ttlWarning})`;
-			}
-		}
-		if (options.burn) {
-			expiresIn += " 🔥";
-		}
-		if (options.private) {
-			expiresIn += " 🔒";
-		}
-		if (options.lang) {
-			expiresIn += ` 📝 ${options.lang}`;
+		let expiresIn = options.ttl ?? "24h";
+		if (ttlWarning) {
+			expiresIn += ` (${ttlWarning})`;
 		}
 
+		// Build flags array
+		const displayFlags: string[] = [];
+		if (options.burn) displayFlags.push("🔥 burn");
+		if (options.private) displayFlags.push("🔒 private");
+		if (options.lang) displayFlags.push(`📝 ${options.lang}`);
+
 		spin.stop(true);
-		printSuccess(url, deleteKey, expiresIn);
+		printSuccess({ url, deleteKey, expiresIn, flags: displayFlags });
 	} catch (err) {
 		spin.stop(false);
 		printError(
