@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.3] - 2025-12-10
+
+### Added
+
+- About page (`/about`) with project story, features, and tech stack
+- "Why Sign In?" comparison table on docs page
+- Language modal showing all 66 supported languages with aliases
+- Auto-detection documentation for syntax highlighting
+- Custom dark scrollbars across all pages
+- API response examples in documentation
+
+### Changed
+
+- Documentation fully rewritten with expanded sections
+- Home page features updated to highlight auth benefits
+- Shared UI components extracted to `shared.ts` to reduce duplication
+
 ## [0.6.2] - 2025-12-09
 
 ### Added

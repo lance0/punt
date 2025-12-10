@@ -45,7 +45,7 @@
 - [x] Burn after read (`X-Burn-After-Read: 1`)
 - [x] Private pastes with view key (`X-Private: 1`)
 - [x] QR code for paste URL
-- [ ] Syntax highlighting for common languages (deferred - conflicts with ANSI)
+- [x] Syntax highlighting via `--lang` flag (66 languages, opt-in alongside ANSI)
 
 ## Phase 4: Admin & Observability (Complete)
 

@@ -197,10 +197,116 @@ export function renderDocsPage({ user }: DocsPageProps = {}): string {
       background: #45475a;
       text-decoration: none;
     }
+    .lang-list-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #313244;
+      color: #cdd6f4;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      border: 1px solid #45475a;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      margin-top: 8px;
+    }
+    .lang-list-btn:hover {
+      background: #45475a;
+    }
+    .lang-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .lang-modal.show {
+      display: flex;
+    }
+    .lang-modal-content {
+      background: #181825;
+      border: 1px solid #313244;
+      border-radius: 16px;
+      padding: 32px;
+      max-width: 800px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+    .lang-modal-content h3 {
+      color: #cdd6f4;
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+    .lang-modal-subtitle {
+      color: #6c7086;
+      font-size: 13px;
+      margin-bottom: 24px;
+      font-family: system-ui, sans-serif;
+    }
+    .lang-categories {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+    .lang-category h4 {
+      color: #89b4fa;
+      font-size: 14px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #313244;
+    }
+    .lang-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .lang-item {
+      font-size: 13px;
+      color: #cdd6f4;
+    }
+    .lang-item code {
+      color: #6c7086;
+      font-size: 11px;
+      margin-left: 4px;
+    }
+    .lang-modal-close {
+      display: block;
+      width: 100%;
+      background: #313244;
+      color: #cdd6f4;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #45475a;
+      cursor: pointer;
+      font-size: 14px;
+      font-family: inherit;
+      transition: background 0.2s;
+    }
+    .lang-modal-close:hover {
+      background: #45475a;
+    }
     @media (max-width: 768px) {
       main { padding: 24px 16px; }
       h1 { font-size: 24px; }
       pre { font-size: 11px; padding: 12px; }
+      .lang-modal-content {
+        padding: 20px;
+        max-height: 90vh;
+      }
+      .lang-categories {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -295,22 +401,36 @@ docker logs myapp | punt
 kubectl describe pod mypod | punt</code></pre>
 
     <h3>Syntax Highlighting</h3>
-    <p>For code snippets (not terminal output), use the <code class="inline-code">--lang</code> flag to enable syntax highlighting with 100+ supported languages.</p>
-    <pre><code><span class="comment"># Specify language for syntax highlighting</span>
-cat src/index.ts | punt <span class="flag">--lang typescript</span>
-cat script.py | punt <span class="flag">--lang python</span>
-cat main.go | punt <span class="flag">--lang go</span>
+    <p>For code snippets (not terminal output), use the <code class="inline-code">--lang</code> flag to enable syntax highlighting with 66 supported languages.</p>
 
-<span class="comment"># Short aliases work too</span>
-cat app.js | punt <span class="flag">--lang js</span>
-cat script.py | punt <span class="flag">--lang py</span>
-cat main.rs | punt <span class="flag">--lang rs</span></code></pre>
+    <h4 style="color: #f9e2af; font-size: 14px; margin: 20px 0 12px;">Auto-Detection</h4>
+    <p>When piping files, punt automatically detects the language from the file extension:</p>
+    <pre><code><span class="comment"># Language auto-detected from file extension</span>
+cat src/index.ts | punt          <span class="comment"># Detects TypeScript</span>
+cat script.py | punt             <span class="comment"># Detects Python</span>
+cat config.yaml | punt           <span class="comment"># Detects YAML</span>
 
-    <div class="tip">
+<span class="comment"># For piped stdin without a filename, specify explicitly</span>
+docker logs myapp | punt <span class="flag">--lang json</span>
+kubectl get pods -o yaml | punt <span class="flag">--lang yaml</span></code></pre>
+
+    <h4 style="color: #f9e2af; font-size: 14px; margin: 20px 0 12px;">Language Aliases</h4>
+    <p>Use short aliases for common languages:</p>
+    <pre><code>cat app.js | punt <span class="flag">--lang js</span>       <span class="comment"># javascript</span>
+cat index.ts | punt <span class="flag">--lang ts</span>     <span class="comment"># typescript</span>
+cat script.py | punt <span class="flag">--lang py</span>    <span class="comment"># python</span>
+cat main.rs | punt <span class="flag">--lang rs</span>      <span class="comment"># rust</span>
+cat run.sh | punt <span class="flag">--lang sh</span>       <span class="comment"># bash</span>
+cat config.yml | punt <span class="flag">--lang yml</span>  <span class="comment"># yaml</span></code></pre>
+
+    <button class="lang-list-btn" onclick="showLanguages()">View all 66 supported languages</button>
+
+    <div class="tip" style="margin-top: 16px;">
       <div class="tip-title">ANSI vs Syntax Highlighting</div>
       <ul style="margin-bottom: 0;">
         <li><strong>Use default (ANSI):</strong> Terminal output, logs, test results, command output</li>
         <li><strong>Use --lang:</strong> Source code files, config files, snippets without ANSI colors</li>
+        <li><strong>Use --lang ansi:</strong> Explicitly force ANSI rendering if auto-detect picks wrong language</li>
       </ul>
     </div>
 
@@ -536,6 +656,114 @@ X-RateLimit-Reset: 1705315200</code></pre>
     </div>
 
   </main>
+
+  <!-- Language Modal -->
+  <div id="lang-modal" class="lang-modal" onclick="closeLangModal()">
+    <div class="lang-modal-content" onclick="event.stopPropagation()">
+      <h3>Supported Languages</h3>
+      <p class="lang-modal-subtitle">Aliases shown in parentheses. Use with --lang flag or X-Language header.</p>
+      <div class="lang-categories">
+        <div class="lang-category">
+          <h4>Web</h4>
+          <div class="lang-list">
+            <span class="lang-item">javascript <code>js</code></span>
+            <span class="lang-item">typescript <code>ts</code></span>
+            <span class="lang-item">html</span>
+            <span class="lang-item">css</span>
+            <span class="lang-item">json</span>
+            <span class="lang-item">jsx</span>
+            <span class="lang-item">tsx</span>
+            <span class="lang-item">vue</span>
+            <span class="lang-item">svelte</span>
+            <span class="lang-item">astro</span>
+          </div>
+        </div>
+        <div class="lang-category">
+          <h4>Backend</h4>
+          <div class="lang-list">
+            <span class="lang-item">python <code>py</code></span>
+            <span class="lang-item">ruby <code>rb</code></span>
+            <span class="lang-item">php</span>
+            <span class="lang-item">go</span>
+            <span class="lang-item">rust <code>rs</code></span>
+            <span class="lang-item">java</span>
+            <span class="lang-item">kotlin <code>kt</code></span>
+            <span class="lang-item">scala</span>
+            <span class="lang-item">swift</span>
+            <span class="lang-item">c</span>
+            <span class="lang-item">cpp <code>c++</code></span>
+            <span class="lang-item">csharp <code>cs, c#</code></span>
+          </div>
+        </div>
+        <div class="lang-category">
+          <h4>Shell & Config</h4>
+          <div class="lang-list">
+            <span class="lang-item">bash <code>sh</code></span>
+            <span class="lang-item">shell</span>
+            <span class="lang-item">zsh</span>
+            <span class="lang-item">fish</span>
+            <span class="lang-item">powershell <code>ps1</code></span>
+            <span class="lang-item">dockerfile</span>
+            <span class="lang-item">yaml <code>yml</code></span>
+            <span class="lang-item">toml</span>
+            <span class="lang-item">ini</span>
+            <span class="lang-item">nginx</span>
+          </div>
+        </div>
+        <div class="lang-category">
+          <h4>Data & Query</h4>
+          <div class="lang-list">
+            <span class="lang-item">sql</span>
+            <span class="lang-item">graphql</span>
+            <span class="lang-item">prisma</span>
+          </div>
+        </div>
+        <div class="lang-category">
+          <h4>Markup & Docs</h4>
+          <div class="lang-list">
+            <span class="lang-item">markdown <code>md</code></span>
+            <span class="lang-item">mdx</span>
+            <span class="lang-item">latex</span>
+            <span class="lang-item">xml</span>
+          </div>
+        </div>
+        <div class="lang-category">
+          <h4>Other</h4>
+          <div class="lang-list">
+            <span class="lang-item">lua</span>
+            <span class="lang-item">perl</span>
+            <span class="lang-item">r</span>
+            <span class="lang-item">elixir <code>ex</code></span>
+            <span class="lang-item">erlang</span>
+            <span class="lang-item">haskell <code>hs</code></span>
+            <span class="lang-item">ocaml <code>ml</code></span>
+            <span class="lang-item">clojure <code>clj</code></span>
+            <span class="lang-item">lisp</span>
+            <span class="lang-item">zig</span>
+            <span class="lang-item">nim</span>
+            <span class="lang-item">v</span>
+            <span class="lang-item">diff</span>
+            <span class="lang-item">makefile</span>
+            <span class="lang-item">cmake</span>
+            <span class="lang-item">regex</span>
+          </div>
+        </div>
+      </div>
+      <button class="lang-modal-close" onclick="closeLangModal()">Close</button>
+    </div>
+  </div>
+
+  <script>
+    function showLanguages() {
+      document.getElementById('lang-modal').classList.add('show');
+    }
+    function closeLangModal() {
+      document.getElementById('lang-modal').classList.remove('show');
+    }
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLangModal();
+    });
+  </script>
 
   ${renderFooter()}
 </body>

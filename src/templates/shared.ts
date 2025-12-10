@@ -57,6 +57,27 @@ export function renderFooter(): string {
 
 export function getSharedStyles(): string {
   return `
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #11111b;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #45475a;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #585b70;
+    }
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #45475a #11111b;
+    }
+
     /* Shared header styles */
     .site-header {
       display: flex;

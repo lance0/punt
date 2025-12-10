@@ -1,6 +1,6 @@
 {
   "name": "punt",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "Share terminal output instantly - CLI tool, ANSI color support, syntax highlighting, GitHub auth",
   "license": "MIT",
   "repository": {

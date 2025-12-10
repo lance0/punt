@@ -8,7 +8,7 @@ Share terminal output instantly via [punt.sh](https://punt.sh) - quick, colorful
 ## Features
 
 - **ANSI color preservation** - Terminal output looks exactly as intended
-- **Syntax highlighting** - Opt-in code highlighting for 100+ languages
+- **Syntax highlighting** - Opt-in code highlighting for 66 languages
 - **CLI tool** - First-class command line experience
 - **GitHub authentication** - Extended limits and paste management
 - **Burn after read** - Self-destructing pastes
@@ -46,9 +46,9 @@ cat secret.txt | punt --burn
 # Private paste (requires view key)
 echo "secret" | punt --private
 
-# Syntax highlighting
-cat src/index.ts | punt --lang typescript
-cat script.py | punt --lang python
+# Syntax highlighting (auto-detects from file extension)
+cat src/index.ts | punt              # Detects TypeScript
+cat script.py | punt --lang python   # Or specify explicitly
 ```
 
 ## Authentication
@@ -97,6 +97,17 @@ command | curl -H "X-TTL: 1h" -H "X-Burn-After-Read: 1" \
 # Syntax highlighting
 cat file.ts | curl -H "X-Language: typescript" \
   -X POST --data-binary @- https://punt.sh/api/paste
+```
+
+### Response
+
+```json
+{
+  "url": "https://punt.sh/abc123",
+  "raw": "https://punt.sh/abc123/raw",
+  "deleteKey": "xyz789abc",
+  "expiresAt": "2024-01-15T12:00:00.000Z"
+}
 ```
 
 ## API Reference
