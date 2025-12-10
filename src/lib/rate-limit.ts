@@ -99,3 +99,80 @@ export async function cleanupOldRateLimits(): Promise<number> {
   });
   return result.rowsAffected;
 }
+
+// Per-minute rate limiting for sensitive endpoints
+const CLI_INIT_LIMIT = 10; // 10 device code requests per minute
+const REPORT_LIMIT = 5; // 5 abuse reports per minute
+
+function getMinuteKey(ip: string, endpoint: string): string {
+  const now = new Date();
+  const minute = `${now.toISOString().slice(0, 16)}`; // "2025-12-10T12:34"
+  return `${endpoint}:${ip}:${minute}`;
+}
+
+function getNextMinute(): Date {
+  const next = new Date();
+  next.setSeconds(0, 0);
+  next.setMinutes(next.getMinutes() + 1);
+  return next;
+}
+
+export async function checkCliInitRateLimit(ip: string): Promise<RateLimitResult> {
+  const db = getDb();
+  const key = getMinuteKey(ip, "cli-init");
+  const resetAt = getNextMinute();
+
+  const result = await db.execute({
+    sql: `SELECT count FROM rate_limits WHERE ip_date = ?`,
+    args: [key],
+  });
+
+  const currentCount = result.rows.length > 0 ? (result.rows[0]!.count as number) : 0;
+
+  return {
+    allowed: currentCount < CLI_INIT_LIMIT,
+    remaining: Math.max(0, CLI_INIT_LIMIT - currentCount),
+    resetAt,
+  };
+}
+
+export async function incrementCliInitRateLimit(ip: string): Promise<void> {
+  const db = getDb();
+  const key = getMinuteKey(ip, "cli-init");
+
+  await db.execute({
+    sql: `INSERT INTO rate_limits (ip_date, count) VALUES (?, 1)
+          ON CONFLICT(ip_date) DO UPDATE SET count = count + 1`,
+    args: [key],
+  });
+}
+
+export async function checkReportRateLimit(ip: string): Promise<RateLimitResult> {
+  const db = getDb();
+  const key = getMinuteKey(ip, "report");
+  const resetAt = getNextMinute();
+
+  const result = await db.execute({
+    sql: `SELECT count FROM rate_limits WHERE ip_date = ?`,
+    args: [key],
+  });
+
+  const currentCount = result.rows.length > 0 ? (result.rows[0]!.count as number) : 0;
+
+  return {
+    allowed: currentCount < REPORT_LIMIT,
+    remaining: Math.max(0, REPORT_LIMIT - currentCount),
+    resetAt,
+  };
+}
+
+export async function incrementReportRateLimit(ip: string): Promise<void> {
+  const db = getDb();
+  const key = getMinuteKey(ip, "report");
+
+  await db.execute({
+    sql: `INSERT INTO rate_limits (ip_date, count) VALUES (?, 1)
+          ON CONFLICT(ip_date) DO UPDATE SET count = count + 1`,
+    args: [key],
+  });
+}

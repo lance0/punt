@@ -23,19 +23,21 @@ export interface User {
 }
 
 // Generate a new API token
-export function generateApiToken(): { token: string; hash: string } {
+export async function generateApiToken(): Promise<{ token: string; hash: string }> {
   const token = TOKEN_PREFIX + nanoid(32);
-  const hash = hashToken(token);
+  const hash = await hashToken(token);
   return { token, hash };
 }
 
 // Hash a token using SHA-256
-export function hashToken(token: string): string {
+export async function hashToken(token: string): Promise<string> {
   const encoder = new TextEncoder();
   const data = encoder.encode(token);
-  const hashBuffer = Bun.hash(data);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
   // Convert to hex string
-  return hashBuffer.toString(16).padStart(16, "0");
+  return Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 // Validate an API token and return the user if valid
@@ -45,7 +47,7 @@ export async function validateApiToken(token: string): Promise<User | null> {
   }
 
   const db = getDb();
-  const hash = hashToken(token);
+  const hash = await hashToken(token);
   const now = nowSeconds();
 
   const result = await db.execute({
@@ -95,7 +97,7 @@ export async function createApiToken(
   name = "CLI Token"
 ): Promise<{ token: string; id: string }> {
   const db = getDb();
-  const { token, hash } = generateApiToken();
+  const { token, hash } = await generateApiToken();
   const id = nanoid(16);
   const now = nowSeconds();
 

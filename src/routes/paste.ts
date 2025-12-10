@@ -1,6 +1,6 @@
 import { Elysia, t } from "elysia";
 import { createPaste, deletePaste, getPaste, createReport } from "../lib/db";
-import { checkRateLimit, incrementRateLimit, checkUserRateLimit, incrementUserRateLimit } from "../lib/rate-limit";
+import { checkRateLimit, incrementRateLimit, checkUserRateLimit, incrementUserRateLimit, checkReportRateLimit, incrementReportRateLimit } from "../lib/rate-limit";
 import { parseTTL, MAX_TTL, MAX_TTL_AUTHENTICATED } from "../lib/time";
 import { generatePasteId, generateDeleteKey, generateViewKey } from "../lib/id";
 import { logger } from "../lib/logger";
@@ -217,6 +217,13 @@ export const pasteRoutes = new Elysia({ prefix: "/api", detail: { tags: ["paste"
       const { id } = params;
       const ip = getClientIp(request);
 
+      // Rate limit: 5 reports per minute
+      const rateLimit = await checkReportRateLimit(ip);
+      if (!rateLimit.allowed) {
+        set.status = 429;
+        return { error: "Too many reports. Try again in a minute." };
+      }
+
       // Check if paste exists
       const paste = await getPaste(id);
       if (!paste) {
@@ -233,6 +240,7 @@ export const pasteRoutes = new Elysia({ prefix: "/api", detail: { tags: ["paste"
 
       // Create report
       await createReport(id, reason, ip);
+      await incrementReportRateLimit(ip);
 
       logger.info("abuse_report", {
         paste_id: id,

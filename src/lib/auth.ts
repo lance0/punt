@@ -16,6 +16,7 @@ async function createAuth() {
       dialect,
       type: "sqlite",
     },
+    secret: process.env.BETTER_AUTH_SECRET,
     baseURL: process.env.BASE_URL ?? "https://punt.sh",
     socialProviders: {
       github: {

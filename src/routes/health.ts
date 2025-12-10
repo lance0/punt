@@ -13,13 +13,12 @@ export const healthRoutes = new Elysia().get(
         timestamp: new Date().toISOString(),
         database: "connected",
       };
-    } catch (error) {
+    } catch {
       set.status = 503;
       return {
         status: "unhealthy",
         timestamp: new Date().toISOString(),
         database: "disconnected",
-        error: error instanceof Error ? error.message : "Unknown error",
       };
     }
   },

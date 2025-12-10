@@ -101,14 +101,19 @@ cat file.ts | curl -H "X-Language: typescript" \
 
 ### Response
 
-```json
-{
-  "url": "https://punt.sh/abc123",
-  "raw": "https://punt.sh/abc123/raw",
-  "deleteKey": "xyz789abc",
-  "expiresAt": "2024-01-15T12:00:00.000Z"
-}
 ```
+🏈 Punted!
+
+   URL  https://punt.sh/abc123
+   Raw  https://punt.sh/abc123/raw
+   Expires in 24h
+   Delete key: xyz789abc
+```
+
+Response headers include:
+- `X-Paste-Id`: The paste ID
+- `X-Delete-Key`: Key to delete the paste
+- `X-RateLimit-Remaining`: Remaining requests today
 
 ## API Reference
 

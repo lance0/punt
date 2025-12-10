@@ -13,13 +13,36 @@ import {
   renderCliSuccessPage,
   renderCliErrorPage,
 } from "../templates/cli-auth";
+import { checkCliInitRateLimit, incrementCliInitRateLimit } from "../lib/rate-limit";
+
+function getClientIp(request: Request): string {
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  if (forwardedFor) {
+    return forwardedFor.split(",")[0]!.trim();
+  }
+  const realIp = request.headers.get("x-real-ip");
+  if (realIp) {
+    return realIp;
+  }
+  return "127.0.0.1";
+}
 
 export const cliAuthRoutes = new Elysia()
   .use(html())
 
   // CLI calls this to initiate device auth flow
-  .post("/api/cli/init", async () => {
+  .post("/api/cli/init", async ({ request, set }) => {
+    const ip = getClientIp(request);
+
+    // Rate limit: 10 device code requests per minute
+    const rateLimit = await checkCliInitRateLimit(ip);
+    if (!rateLimit.allowed) {
+      set.status = 429;
+      return { error: "Too many requests. Try again in a minute." };
+    }
+
     const code = await createDeviceCode();
+    await incrementCliInitRateLimit(ip);
     return { code };
   })
 
