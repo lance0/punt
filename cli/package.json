@@ -1,6 +1,6 @@
 {
   "name": "@lance0/punt",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Share terminal output via punt.sh - quick, colorful, ephemeral",
   "type": "module",
   "bin": {
