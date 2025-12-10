@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.4] - 2025-12-10
+
+### Security
+
+- Use BETTER_AUTH_SECRET for session token signing
+- Replace non-cryptographic Bun.hash with SHA-256 for API token hashing
+- Sanitize health check endpoint to not leak database error messages
+- Add rate limiting to CLI init endpoint (10/minute)
+- Add rate limiting to abuse report endpoint (5/minute)
+
+### Changed
+
+- README now shows actual API response format (text output)
+
 ## [0.6.3] - 2025-12-10
 
 ### Added
