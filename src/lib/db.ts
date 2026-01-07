@@ -20,6 +20,16 @@ export function getDb(): Client {
   return client;
 }
 
+// For testing: inject a test database client
+export function setTestDb(testClient: Client): void {
+  client = testClient;
+}
+
+// For testing: reset the client
+export function resetDb(): void {
+  client = null;
+}
+
 // Paste types
 export interface Paste {
   id: string;
