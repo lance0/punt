@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.7] - 2025-12-10
+
+### Added
+
+- Test infrastructure with 87 tests using Bun's built-in test runner
+  - Unit tests: ID generation, TTL parsing, token hashing
+  - Integration tests: paste CRUD, rate limiting
+  - In-memory SQLite for fast isolated tests
+- Vercel Web Analytics on all pages
+
+### Changed
+
+- CLI v0.5.1: Improved output formatting
+  - Full delete key now shown (was truncated)
+  - Cleaner layout with colored labels
+  - Flags (burn, private, language) on separate line
+
+### Fixed
+
+- Documentation accuracy: "100+ languages" corrected to "66 languages" on About page
+- Homepage: Added `punt <file>` syntax to Quick Start and Examples
+- Homepage: Fixed curl TTL comment to show both anon (7d) and auth (30d) limits
+
 ## [0.6.6] - 2025-12-10
 
 ### Security

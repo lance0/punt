@@ -94,6 +94,14 @@
 - [x] Rate limiting on CLI init (10/min) and abuse report (5/min) endpoints
 - [x] Private paste URLs include view key in copy/download/QR
 
+## Phase 7: Testing & Quality (Complete)
+
+- [x] Test infrastructure with Bun's built-in test runner
+- [x] Unit tests for pure functions (ID generation, TTL parsing, token hashing)
+- [x] Integration tests for database operations (paste CRUD, rate limiting)
+- [x] In-memory SQLite for fast isolated tests
+- [x] 87 tests covering critical paths
+
 ## Future Ideas
 
 - Custom paste IDs (slug)
