@@ -52,7 +52,7 @@ export function renderHeader({ activePage, user, callbackURL = '/' }: HeaderProp
 export function renderFooter(): string {
   // Vercel Analytics - only works on Vercel deployments, safely ignored on self-hosted
   return `<footer class="site-footer">
-    <p>punt.sh • <a href="https://github.com/lance0/punt">GitHub</a></p>
+    <p>punt.sh • <a href="https://github.com/lance0/punt">GitHub</a> • <a href="https://ko-fi.com/lance0">Ko-fi</a></p>
   </footer>
   <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
   <script defer src="/_vercel/insights/script.js"></script>`;

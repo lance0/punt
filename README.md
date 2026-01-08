@@ -2,6 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/@lance0/punt.svg)](https://www.npmjs.com/package/@lance0/punt)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-Support-ff5e5b?logo=ko-fi&logoColor=white)](https://ko-fi.com/lance0)
 
 Share terminal output instantly via [punt.sh](https://punt.sh) - quick, colorful, ephemeral.
 
