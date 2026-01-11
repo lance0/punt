@@ -14,6 +14,72 @@ export function renderDocsPage({ user }: DocsPageProps = {}): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>punt.sh - Documentation</title>
   <meta name="description" content="How to use punt.sh - CLI installation, API usage, and FAQ">
+  <meta property="og:title" content="punt.sh Documentation">
+  <meta property="og:description" content="How to use punt.sh - CLI installation, API usage, and FAQ">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="${baseUrl}/docs">
+  <meta property="og:site_name" content="punt.sh">
+  <meta property="og:image" content="${baseUrl}/og-image.png">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="punt.sh Documentation">
+  <meta name="twitter:description" content="How to use punt.sh - CLI installation, API usage, and FAQ">
+  <link rel="canonical" href="${baseUrl}/docs">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How long do pastes last?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Default is 24 hours. Anonymous users can set up to 7 days, authenticated users up to 30 days."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What's the maximum paste size?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "4 MB per paste."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Are pastes encrypted?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Pastes are transmitted over HTTPS. Private pastes require a key to view, but content is not end-to-end encrypted."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What's the rate limit?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Anonymous: 100 pastes/day per IP. Authenticated: 1000 pastes/day."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I delete a paste?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes! Each paste comes with a delete key. Use punt --delete <id> <key> or the dashboard if logged in."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why are ANSI colors preserved?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "punt.sh renders ANSI escape codes as colored HTML, so your terminal output looks exactly as intended."
+        }
+      }
+    ]
+  }
+  </script>
   <link rel="icon" href="${FAVICON}">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }

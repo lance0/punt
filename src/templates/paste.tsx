@@ -355,6 +355,41 @@ export function renderHomePage(user?: HomePageUser): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>punt.sh - Share terminal output</title>
   <meta name="description" content="Share terminal output via short URL with accurate ANSI colors. No account required, ephemeral by design.">
+  <meta property="og:title" content="punt.sh - Share terminal output">
+  <meta property="og:description" content="Share terminal output via short URL with accurate ANSI colors. No account required, ephemeral by design.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="${baseUrl}/">
+  <meta property="og:site_name" content="punt.sh">
+  <meta property="og:image" content="${baseUrl}/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="punt.sh - Share terminal output">
+  <meta name="twitter:description" content="Share terminal output via short URL with accurate ANSI colors.">
+  <meta name="twitter:image" content="${baseUrl}/og-image.png">
+  <link rel="canonical" href="${baseUrl}/">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "punt.sh",
+    "description": "Share terminal output instantly via short URLs with ANSI color preservation",
+    "url": "${baseUrl}",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Any",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "featureList": [
+      "ANSI color preservation",
+      "Syntax highlighting",
+      "Burn after read",
+      "Private pastes",
+      "CLI tool",
+      "GitHub authentication"
+    ]
+  }
+  </script>
   <link rel="icon" href="${FAVICON}">
   <style>${getBaseStyles()}${getSharedStyles()}</style>
 </head>
