@@ -1,4 +1,4 @@
-import { FAVICON, renderHeader, renderFooter, getSharedStyles } from "./shared";
+import { FAVICON, renderHeader, renderFooter, getCssLinks } from "./shared";
 
 interface DocsPageProps {
   user?: { name: string; image?: string | null };
@@ -81,16 +81,8 @@ export function renderDocsPage({ user }: DocsPageProps = {}): string {
   }
   </script>
   <link rel="icon" href="${FAVICON}">
+  ${getCssLinks()}
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'SF Mono', 'Menlo', 'Consolas', 'Monaco', monospace;
-      background: #1e1e2e;
-      color: #cdd6f4;
-      min-height: 100vh;
-      line-height: 1.6;
-    }
-    ${getSharedStyles()}
     main {
       max-width: 800px;
       margin: 0 auto;

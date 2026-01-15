@@ -1,6 +1,4 @@
-import { getAnsiCss } from "../lib/ansi";
-import { getShikiCss } from "../lib/highlight";
-import { FAVICON, GITHUB_ICON, escapeHtml, renderHeader, renderFooter, getSharedStyles } from "./shared";
+import { FAVICON, escapeHtml, renderHeader, renderFooter, getSharedStyles, getCssLinks } from "./shared";
 
 interface PastePageProps {
   id: string;
@@ -26,8 +24,6 @@ export function renderPastePage(props: PastePageProps): string {
   const lines = rawContent.split("\n");
   const size = new TextEncoder().encode(rawContent).length;
   const baseUrl = process.env.BASE_URL ?? "https://punt.sh";
-  // Use Shiki CSS for syntax highlighted content, ANSI CSS otherwise
-  const contentCss = language ? getShikiCss() : getAnsiCss();
   // Build URL suffix for private pastes
   const keyParam = viewKey ? `?key=${encodeURIComponent(viewKey)}` : "";
 
@@ -39,7 +35,7 @@ export function renderPastePage(props: PastePageProps): string {
   <meta name="robots" content="noindex, nofollow">
   <title>punt.sh - ${escapeHtml(id)}</title>
   <link rel="icon" href="${FAVICON}">
-  <style>${getBaseStyles()}${contentCss}${getToastStyles()}${getLanguageBadgeStyles()}</style>
+  ${getCssLinks(true)}
 </head>
 <body>
   <div class="warning-banner">
@@ -224,7 +220,7 @@ export function renderErrorPage(title: string, message: string): string {
   <meta name="robots" content="noindex, nofollow">
   <title>punt.sh - ${escapeHtml(title)}</title>
   <link rel="icon" href="${FAVICON}">
-  <style>${getBaseStyles()}${getSharedStyles()}</style>
+  ${getCssLinks()}
 </head>
 <body>
   ${renderHeader()}
@@ -250,7 +246,7 @@ export function renderPrivateKeyPage(id: string): string {
   <meta name="robots" content="noindex, nofollow">
   <title>punt.sh - Private paste</title>
   <link rel="icon" href="${FAVICON}">
-  <style>${getBaseStyles()}${getSharedStyles()}${getPrivateKeyStyles()}</style>
+  ${getCssLinks()}
 </head>
 <body>
   ${renderHeader()}
@@ -280,7 +276,7 @@ export function renderPrivateKeyPage(id: string): string {
 </html>`;
 }
 
-function getLanguageBadgeStyles(): string {
+export function getLanguageBadgeStyles(): string {
   return `
     .lang-badge {
       color: #a6e3a1;
@@ -292,7 +288,7 @@ function getLanguageBadgeStyles(): string {
   `;
 }
 
-function getPrivateKeyStyles(): string {
+export function getPrivateKeyStyles(): string {
   return `
     .private-page {
       display: flex;
@@ -391,7 +387,7 @@ export function renderHomePage(user?: HomePageUser): string {
   }
   </script>
   <link rel="icon" href="${FAVICON}">
-  <style>${getBaseStyles()}${getSharedStyles()}</style>
+  ${getCssLinks()}
 </head>
 <body>
   ${renderHeader({ activePage: 'home', user, callbackURL: '/' })}
@@ -530,7 +526,7 @@ command | curl -X POST -H "X-TTL: 1h" --data-binary @- ${baseUrl}/api/paste</cod
 </html>`;
 }
 
-function getToastStyles(): string {
+export function getToastStyles(): string {
   return `
     .toast {
       position: fixed;
@@ -561,7 +557,7 @@ function getToastStyles(): string {
   `;
 }
 
-function getBaseStyles(): string {
+export function getBaseStyles(): string {
   return `
     * {
       box-sizing: border-box;

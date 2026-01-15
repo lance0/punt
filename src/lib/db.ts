@@ -236,42 +236,72 @@ export async function getAdminStats(): Promise<AdminStats> {
   const oneDayAgo = now - 86400;
   const sevenDaysAgo = now - 86400 * 7;
 
-  // Get paste counts
-  const [totalResult, todayResult, weekResult, activeResult, viewsResult, burnResult, privateResult] =
-    await Promise.all([
-      db.execute({ sql: `SELECT COUNT(*) as count FROM pastes`, args: [] }),
-      db.execute({
-        sql: `SELECT COUNT(*) as count FROM pastes WHERE created_at >= ?`,
-        args: [oneDayAgo],
-      }),
-      db.execute({
-        sql: `SELECT COUNT(*) as count FROM pastes WHERE created_at >= ?`,
-        args: [sevenDaysAgo],
-      }),
-      db.execute({
-        sql: `SELECT COUNT(*) as count FROM pastes WHERE expires_at > ?`,
-        args: [now],
-      }),
-      db.execute({ sql: `SELECT SUM(views) as total FROM pastes`, args: [] }),
-      db.execute({
-        sql: `SELECT COUNT(*) as count FROM pastes WHERE burn_after_read = 1`,
-        args: [],
-      }),
-      db.execute({
-        sql: `SELECT COUNT(*) as count FROM pastes WHERE is_private = 1`,
-        args: [],
-      }),
-    ]);
-
-  // Get top IPs from rate limits (exclude user: and endpoint: prefixes)
-  const topIpsResult = await db.execute({
-    sql: `SELECT ip_date, count FROM rate_limits
-          WHERE ip_date NOT LIKE 'user:%'
-          AND ip_date NOT LIKE 'cli-init:%'
-          AND ip_date NOT LIKE 'report:%'
-          ORDER BY count DESC LIMIT 10`,
-    args: [],
-  });
+  // Run all 10 queries in parallel for maximum performance
+  const [
+    totalResult,
+    todayResult,
+    weekResult,
+    activeResult,
+    viewsResult,
+    burnResult,
+    privateResult,
+    topIpsResult,
+    topUsersResult,
+    recentPastesResult,
+  ] = await Promise.all([
+    db.execute({ sql: `SELECT COUNT(*) as count FROM pastes`, args: [] }),
+    db.execute({
+      sql: `SELECT COUNT(*) as count FROM pastes WHERE created_at >= ?`,
+      args: [oneDayAgo],
+    }),
+    db.execute({
+      sql: `SELECT COUNT(*) as count FROM pastes WHERE created_at >= ?`,
+      args: [sevenDaysAgo],
+    }),
+    db.execute({
+      sql: `SELECT COUNT(*) as count FROM pastes WHERE expires_at > ?`,
+      args: [now],
+    }),
+    db.execute({ sql: `SELECT SUM(views) as total FROM pastes`, args: [] }),
+    db.execute({
+      sql: `SELECT COUNT(*) as count FROM pastes WHERE burn_after_read = 1`,
+      args: [],
+    }),
+    db.execute({
+      sql: `SELECT COUNT(*) as count FROM pastes WHERE is_private = 1`,
+      args: [],
+    }),
+    // Top IPs from rate limits (exclude user: and endpoint: prefixes)
+    db.execute({
+      sql: `SELECT ip_date, count FROM rate_limits
+            WHERE ip_date NOT LIKE 'user:%'
+            AND ip_date NOT LIKE 'cli-init:%'
+            AND ip_date NOT LIKE 'report:%'
+            ORDER BY count DESC LIMIT 10`,
+      args: [],
+    }),
+    // Top authenticated users by paste count
+    db.execute({
+      sql: `SELECT p.user_id, u.name, u.image, COUNT(*) as count
+            FROM pastes p
+            JOIN user u ON p.user_id = u.id
+            WHERE p.user_id IS NOT NULL
+            GROUP BY p.user_id
+            ORDER BY count DESC
+            LIMIT 10`,
+      args: [],
+    }),
+    // Recent pastes with metadata
+    db.execute({
+      sql: `SELECT p.id, p.created_at, p.views, p.user_id, p.creator_ip,
+                   p.language, p.burn_after_read, p.is_private, u.name as user_name
+            FROM pastes p
+            LEFT JOIN user u ON p.user_id = u.id
+            ORDER BY p.created_at DESC
+            LIMIT 20`,
+      args: [],
+    }),
+  ]);
 
   const topIps = topIpsResult.rows.map((row) => {
     const ipDate = row.ip_date as string;
@@ -281,35 +311,12 @@ export async function getAdminStats(): Promise<AdminStats> {
     return { ip, count: row.count as number };
   });
 
-  // Get top authenticated users by paste count
-  const topUsersResult = await db.execute({
-    sql: `SELECT p.user_id, u.name, u.image, COUNT(*) as count
-          FROM pastes p
-          JOIN user u ON p.user_id = u.id
-          WHERE p.user_id IS NOT NULL
-          GROUP BY p.user_id
-          ORDER BY count DESC
-          LIMIT 10`,
-    args: [],
-  });
-
   const topUsers: TopUser[] = topUsersResult.rows.map((row) => ({
     id: row.user_id as string,
     name: row.name as string,
     image: row.image as string | null,
     count: row.count as number,
   }));
-
-  // Get recent pastes with metadata
-  const recentPastesResult = await db.execute({
-    sql: `SELECT p.id, p.created_at, p.views, p.user_id, p.creator_ip,
-                 p.language, p.burn_after_read, p.is_private, u.name as user_name
-          FROM pastes p
-          LEFT JOIN user u ON p.user_id = u.id
-          ORDER BY p.created_at DESC
-          LIMIT 20`,
-    args: [],
-  });
 
   const recentPastes: RecentPaste[] = recentPastesResult.rows.map((row) => ({
     id: row.id as string,

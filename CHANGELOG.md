@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.8] - 2026-01-15
+
+### Changed
+
+- **Performance: External CSS with caching**
+  - CSS now served from `/styles/main.v1.css` and `/styles/paste.v1.css`
+  - Cache headers: `max-age=31536000, immutable` (1 year)
+  - ~30KB saved per repeat page view (browsers cache CSS)
+  - To bust cache after CSS changes: bump `CSS_VERSION` in `src/templates/shared.ts`
+- **Performance: Parallelized admin dashboard queries**
+  - All 10 DB queries now run in parallel (was 7 parallel + 3 sequential)
+  - ~100-300ms faster dashboard load
+- **Performance: Pre-warm additional syntax languages**
+  - Added java, c, cpp, php, ruby, shell to preloaded languages (18 total)
+  - Eliminates cold-start latency for common languages
+
 ## [0.6.7] - 2026-01-07
 
 ### Added

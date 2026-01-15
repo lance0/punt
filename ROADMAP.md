@@ -102,6 +102,15 @@
 - [x] In-memory SQLite for fast isolated tests
 - [x] 87 tests covering critical paths
 
+## Phase 8: Performance (Complete)
+
+- [x] External CSS with aggressive caching
+  - `/styles/main.v1.css` and `/styles/paste.v1.css`
+  - 1-year cache with versioned URLs for cache busting
+  - ~30KB bandwidth savings per repeat visit
+- [x] Parallelized admin dashboard queries (10 parallel vs 7+3 sequential)
+- [x] Pre-warmed syntax highlighting for 18 common languages
+
 ## Future Ideas
 
 - Custom paste IDs (slug)

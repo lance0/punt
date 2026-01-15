@@ -18,6 +18,13 @@ const PRELOAD_LANGUAGES = [
   "sql",
   "yaml",
   "markdown",
+  // Additional common languages
+  "java",
+  "c",
+  "cpp",
+  "php",
+  "ruby",
+  "shell",
 ];
 
 /**

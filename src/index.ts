@@ -10,6 +10,7 @@ import { dashboardRoutes } from "./routes/dashboard";
 import { cliAuthRoutes } from "./routes/cli-auth";
 import { userRoutes } from "./routes/user";
 import { seoRoutes } from "./routes/seo";
+import { staticRoutes } from "./routes/static";
 import { renderHomePage } from "./templates/paste";
 import { renderDocsPage } from "./templates/docs";
 import { renderAboutPage } from "./templates/about";
@@ -103,6 +104,7 @@ const app = new Elysia({
   // Register routes
   .use(healthRoutes)
   .use(seoRoutes)
+  .use(staticRoutes)
   .use(pasteRoutes)
   .use(adminRoutes)
   .use(cronRoutes)
