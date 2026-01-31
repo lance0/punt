@@ -370,21 +370,16 @@ export function renderDocsPage({ user }: DocsPageProps = {}): string {
       pre {
         font-size: 12px;
         padding: 12px;
-        margin-left: -16px;
-        margin-right: -16px;
-        border-radius: 0;
-        border-left: none;
-        border-right: none;
+        border-radius: 6px;
       }
       .table-wrap {
-        margin: 0 -16px 16px;
-        padding: 0;
+        margin: 0 0 16px;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
       }
-      table { font-size: 12px; min-width: 400px; }
-      th, td { padding: 10px 8px; white-space: nowrap; }
-      .comparison-table { border-radius: 0; }
+      table { font-size: 12px; }
+      th, td { padding: 10px 8px; }
+      .comparison-table { border-radius: 8px; }
       .lang-modal-content {
         padding: 20px;
         max-height: 90vh;
@@ -404,10 +399,7 @@ export function renderDocsPage({ user }: DocsPageProps = {}): string {
       pre {
         font-size: 11px;
         padding: 10px;
-        margin-left: -12px;
-        margin-right: -12px;
       }
-      .table-wrap { margin: 0 -12px 16px; }
     }
   </style>
 </head>
