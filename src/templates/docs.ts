@@ -357,7 +357,14 @@ export function renderDocsPage({ user }: DocsPageProps = {}): string {
     @media (max-width: 768px) {
       main { padding: 24px 16px; }
       h1 { font-size: 24px; }
-      pre { font-size: 11px; padding: 12px; }
+      pre { font-size: 12px; padding: 12px; }
+      .table-wrap {
+        margin: 0 -16px 16px;
+        padding: 0 16px;
+      }
+      table { font-size: 12px; }
+      th, td { padding: 10px 8px; }
+      .comparison-table { min-width: 100%; }
       .lang-modal-content {
         padding: 20px;
         max-height: 90vh;
@@ -365,6 +372,17 @@ export function renderDocsPage({ user }: DocsPageProps = {}): string {
       .lang-categories {
         grid-template-columns: 1fr;
       }
+      .faq-item { padding: 16px; }
+      .faq-q { font-size: 14px; }
+      .faq-a { font-size: 13px; }
+    }
+
+    @media (max-width: 400px) {
+      main { padding: 20px 12px; }
+      h1 { font-size: 20px; }
+      h2 { font-size: 18px; }
+      pre { font-size: 11px; padding: 10px; }
+      .table-wrap { margin: 0 -12px 16px; padding: 0 12px; }
     }
   </style>
 </head>

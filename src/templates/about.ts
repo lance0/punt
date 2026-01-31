@@ -130,7 +130,6 @@ export function renderAboutPage({ user }: AboutPageProps = {}): string {
       border-radius: 12px;
       overflow: hidden;
       border: 1px solid #313244;
-      min-width: 500px;
     }
 
     .comparison-table th,
@@ -272,11 +271,11 @@ export function renderAboutPage({ user }: AboutPageProps = {}): string {
       }
 
       .hero h1 {
-        font-size: 28px;
+        font-size: 24px;
       }
 
       .hero p {
-        font-size: 16px;
+        font-size: 15px;
       }
 
       .section {
@@ -284,11 +283,38 @@ export function renderAboutPage({ user }: AboutPageProps = {}): string {
       }
 
       .section h2 {
-        font-size: 20px;
+        font-size: 18px;
+      }
+
+      .story {
+        font-size: 15px;
       }
 
       .features-grid {
         grid-template-columns: 1fr;
+      }
+
+      .feature-card {
+        padding: 20px;
+      }
+
+      .feature-card h3 {
+        font-size: 15px;
+      }
+
+      .feature-card p {
+        font-size: 13px;
+      }
+
+      .comparison-wrapper {
+        margin: 20px -16px;
+        padding: 0 16px;
+      }
+
+      .comparison-table th,
+      .comparison-table td {
+        padding: 12px 10px;
+        font-size: 13px;
       }
 
       .tech-grid {
@@ -299,12 +325,42 @@ export function renderAboutPage({ user }: AboutPageProps = {}): string {
         padding: 32px 20px;
       }
 
+      .cta h2 {
+        font-size: 20px;
+      }
+
+      .cta p {
+        font-size: 14px;
+      }
+
       .cta-buttons {
         flex-direction: column;
       }
 
       .btn {
         justify-content: center;
+        min-height: 48px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      main {
+        padding: 24px 12px;
+      }
+
+      .hero h1 {
+        font-size: 20px;
+      }
+
+      .comparison-wrapper {
+        margin: 16px -12px;
+        padding: 0 12px;
+      }
+
+      .comparison-table th,
+      .comparison-table td {
+        padding: 10px 8px;
+        font-size: 12px;
       }
     }
   </style>

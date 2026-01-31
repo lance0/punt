@@ -1,7 +1,7 @@
 // Shared UI components for all templates
 
 // CSS version - bump this when CSS changes to bust cache
-export const CSS_VERSION = "v1";
+export const CSS_VERSION = "v2";
 
 export const FAVICON = 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Ctext%20y%3D%22.9em%22%20font-size%3D%2290%22%3E%F0%9F%8F%88%3C%2Ftext%3E%3C%2Fsvg%3E';
 
@@ -197,7 +197,7 @@ export function getSharedStyles(): string {
     @media (max-width: 768px) {
       .site-header {
         padding: 12px 16px;
-        gap: 12px;
+        gap: 8px;
       }
 
       .site-logo {
@@ -209,19 +209,19 @@ export function getSharedStyles(): string {
       }
 
       .site-nav {
-        gap: 8px;
+        gap: 6px;
       }
 
       .site-nav a {
-        font-size: 13px;
+        font-size: 12px;
         min-height: 44px;
         display: flex;
         align-items: center;
-        padding: 0 8px;
+        padding: 0 6px;
       }
 
       .nav-user {
-        padding: 8px 12px;
+        padding: 8px 10px;
         min-height: 44px;
       }
 
@@ -230,9 +230,42 @@ export function getSharedStyles(): string {
         height: 18px;
       }
 
+      .nav-login {
+        font-size: 12px;
+        white-space: nowrap;
+      }
+
+      .nav-login svg {
+        width: 14px;
+        height: 14px;
+      }
+
       .site-footer {
         padding: 16px;
         font-size: 12px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .site-header {
+        padding: 10px 12px;
+      }
+
+      .site-logo-text {
+        display: none;
+      }
+
+      .site-nav {
+        gap: 4px;
+      }
+
+      .site-nav a {
+        font-size: 11px;
+        padding: 0 4px;
+      }
+
+      .nav-login span {
+        display: none;
       }
     }
   `;
