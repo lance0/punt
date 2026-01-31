@@ -18,6 +18,8 @@ export function renderAboutPage({ user }: AboutPageProps = {}): string {
     html, body {
       max-width: 100%;
       overflow-x: hidden;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
     }
 
     main {

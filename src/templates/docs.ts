@@ -86,6 +86,8 @@ export function renderDocsPage({ user }: DocsPageProps = {}): string {
     html, body {
       max-width: 100%;
       overflow-x: hidden;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
     }
     main {
       max-width: 800px;
