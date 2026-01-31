@@ -83,16 +83,6 @@ export function renderDocsPage({ user }: DocsPageProps = {}): string {
   <link rel="icon" href="${FAVICON}">
   ${getCssLinks()}
   <style>
-    html {
-      -moz-text-size-adjust: none;
-      -webkit-text-size-adjust: none;
-      text-size-adjust: none;
-    }
-    html, body {
-      width: 100%;
-      max-width: 100%;
-      overflow-x: hidden;
-    }
     main {
       max-width: 800px;
       width: 100%;
