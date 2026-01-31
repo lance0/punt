@@ -500,7 +500,7 @@ cat main.rs | punt <span class="flag">--lang rs</span>      <span class="comment
 cat run.sh | punt <span class="flag">--lang sh</span>       <span class="comment"># bash</span>
 cat config.yml | punt <span class="flag">--lang yml</span>  <span class="comment"># yaml</span></code></pre>
 
-    <button class="lang-list-btn" onclick="showLanguages()">View all 66 supported languages</button>
+    <button type="button" class="lang-list-btn" onclick="showLanguages()">View all 66 supported languages</button>
 
     <div class="tip" style="margin-top: 16px;">
       <div class="tip-title">ANSI vs Syntax Highlighting</div>
@@ -743,9 +743,9 @@ X-RateLimit-Reset: 1705315200</code></pre>
   </main>
 
   <!-- Language Modal -->
-  <div id="lang-modal" class="lang-modal" onclick="closeLangModal()">
+  <div id="lang-modal" class="lang-modal" role="dialog" aria-modal="true" aria-labelledby="lang-modal-title" onclick="closeLangModal()">
     <div class="lang-modal-content" onclick="event.stopPropagation()">
-      <h3>Supported Languages</h3>
+      <h3 id="lang-modal-title">Supported Languages</h3>
       <p class="lang-modal-subtitle">Aliases shown in parentheses. Use with --lang flag or X-Language header.</p>
       <div class="lang-categories">
         <div class="lang-category">
@@ -834,7 +834,7 @@ X-RateLimit-Reset: 1705315200</code></pre>
           </div>
         </div>
       </div>
-      <button class="lang-modal-close" onclick="closeLangModal()">Close</button>
+      <button type="button" class="lang-modal-close" onclick="closeLangModal()">Close</button>
     </div>
   </div>
 

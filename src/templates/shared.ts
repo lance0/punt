@@ -1,7 +1,7 @@
 // Shared UI components for all templates
 
 // CSS version - bump this when CSS changes to bust cache
-export const CSS_VERSION = "v2";
+export const CSS_VERSION = "v3";
 
 export const FAVICON = 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Ctext%20y%3D%22.9em%22%20font-size%3D%2290%22%3E%F0%9F%8F%88%3C%2Ftext%3E%3C%2Fsvg%3E';
 
@@ -39,10 +39,10 @@ interface HeaderProps {
 export function renderHeader({ activePage, user, callbackURL = '/' }: HeaderProps = {}): string {
   const userSection = user
     ? `<a href="/me" class="nav-user">
-        ${user.image ? `<img src="${escapeHtml(user.image)}" alt="" class="nav-avatar">` : ''}
+        ${user.image ? `<img src="${escapeHtml(user.image)}" alt="${escapeHtml(user.name)}" class="nav-avatar">` : ''}
         <span>${escapeHtml(user.name)}</span>
       </a>`
-    : `<a href="/login/github?callbackURL=${encodeURIComponent(callbackURL)}" class="nav-login">
+    : `<a href="/login/github?callbackURL=${encodeURIComponent(callbackURL)}" class="nav-login" aria-label="Sign in with GitHub">
         ${GITHUB_ICON}
         <span>Sign in</span>
       </a>`;
@@ -119,6 +119,12 @@ export function getSharedStyles(): string {
       color: #b4befe;
     }
 
+    .site-logo:focus-visible {
+      outline: 2px solid #89b4fa;
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+
     .site-logo-icon {
       font-size: 24px;
     }
@@ -138,6 +144,12 @@ export function getSharedStyles(): string {
 
     .site-nav a:hover {
       color: #cdd6f4;
+    }
+
+    .site-nav a:focus-visible {
+      outline: 2px solid #89b4fa;
+      outline-offset: 2px;
+      border-radius: 4px;
     }
 
     .site-nav a.active {
@@ -260,7 +272,7 @@ export function getSharedStyles(): string {
       }
 
       .site-nav a {
-        font-size: 11px;
+        font-size: 12px;
         padding: 0 4px;
       }
 
