@@ -83,6 +83,10 @@ export function renderDocsPage({ user }: DocsPageProps = {}): string {
   <link rel="icon" href="${FAVICON}">
   ${getCssLinks()}
   <style>
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+    }
     main {
       max-width: 800px;
       margin: 0 auto;
@@ -126,6 +130,7 @@ export function renderDocsPage({ user }: DocsPageProps = {}): string {
       overflow-x: auto;
       margin-bottom: 16px;
       font-size: 13px;
+      max-width: 100%;
     }
     code {
       font-family: 'SF Mono', 'Menlo', 'Consolas', 'Monaco', monospace;
@@ -357,14 +362,24 @@ export function renderDocsPage({ user }: DocsPageProps = {}): string {
     @media (max-width: 768px) {
       main { padding: 24px 16px; }
       h1 { font-size: 24px; }
-      pre { font-size: 12px; padding: 12px; }
+      pre {
+        font-size: 12px;
+        padding: 12px;
+        margin-left: -16px;
+        margin-right: -16px;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+      }
       .table-wrap {
         margin: 0 -16px 16px;
-        padding: 0 16px;
+        padding: 0;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
       }
-      table { font-size: 12px; }
-      th, td { padding: 10px 8px; }
-      .comparison-table { min-width: 100%; }
+      table { font-size: 12px; min-width: 400px; }
+      th, td { padding: 10px 8px; white-space: nowrap; }
+      .comparison-table { border-radius: 0; }
       .lang-modal-content {
         padding: 20px;
         max-height: 90vh;
@@ -381,8 +396,13 @@ export function renderDocsPage({ user }: DocsPageProps = {}): string {
       main { padding: 20px 12px; }
       h1 { font-size: 20px; }
       h2 { font-size: 18px; }
-      pre { font-size: 11px; padding: 10px; }
-      .table-wrap { margin: 0 -12px 16px; padding: 0 12px; }
+      pre {
+        font-size: 11px;
+        padding: 10px;
+        margin-left: -12px;
+        margin-right: -12px;
+      }
+      .table-wrap { margin: 0 -12px 16px; }
     }
   </style>
 </head>

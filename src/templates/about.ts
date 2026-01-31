@@ -15,6 +15,11 @@ export function renderAboutPage({ user }: AboutPageProps = {}): string {
   <link rel="icon" href="${FAVICON}">
   ${getCssLinks()}
   <style>
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
     main {
       max-width: 900px;
       margin: 0 auto;
