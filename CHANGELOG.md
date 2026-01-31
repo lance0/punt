@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.9] - 2026-01-30
+
+### Added
+
+- **SEO & LLM optimization**
+  - `/robots.txt` - crawler guidance (allow public pages, block API/user routes)
+  - `/sitemap.xml` - dynamic sitemap with all public pages
+  - `/llms.txt` and `/llms-full.txt` - AI assistant discovery files
+  - Open Graph and Twitter Card meta tags on home, about, docs pages
+  - JSON-LD structured data (WebApplication schema on home, FAQPage on docs)
+  - `/og-image.png` - dynamic OG image matching site theme
+
+### Changed
+
+- **Dependencies updated**
+  - elysia: 1.4.18 → 1.4.22
+  - better-auth: 1.4.6 → 1.4.18
+  - shiki: 3.19.0 → 3.22.0
+  - @types/bun: 1.3.4 → 1.3.8
+- **CSS architecture improvements**
+  - Mobile overflow fixes centralized in shared CSS
+  - CSS version bumped to v4 for cache busting
+  - Added `text-size-adjust: none` to prevent mobile text inflation
+
+### Fixed
+
+- Mobile horizontal overflow on docs and about pages
+- Accessibility improvements from WCAG review
+  - Added `aria-label` to icon-only buttons
+  - Added `focus-visible` styles to navigation
+  - Fixed avatar `alt` text
+  - Added ARIA attributes to language modal
+
 ## [0.6.8] - 2026-01-15
 
 ### Changed
