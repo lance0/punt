@@ -89,13 +89,16 @@ export function renderDocsPage({ user }: DocsPageProps = {}): string {
       text-size-adjust: none;
     }
     html, body {
+      width: 100%;
       max-width: 100%;
       overflow-x: hidden;
     }
     main {
       max-width: 800px;
+      width: 100%;
       margin: 0 auto;
       padding: 48px 24px;
+      box-sizing: border-box;
     }
     h1 {
       font-size: 32px;
@@ -135,7 +138,9 @@ export function renderDocsPage({ user }: DocsPageProps = {}): string {
       overflow-x: auto;
       margin-bottom: 16px;
       font-size: 13px;
+      width: 100%;
       max-width: 100%;
+      box-sizing: border-box;
     }
     code {
       font-family: 'SF Mono', 'Menlo', 'Consolas', 'Monaco', monospace;
@@ -365,7 +370,7 @@ export function renderDocsPage({ user }: DocsPageProps = {}): string {
       background: #45475a;
     }
     @media (max-width: 768px) {
-      main { padding: 24px 16px; }
+      main { padding: 24px 16px; overflow: hidden; }
       h1 { font-size: 24px; }
       pre {
         font-size: 12px;
